@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ópticas Johny · Inventario</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0f1e;
+  --surface:#111827;
+  --surface2:#1a2235;
+  --border:#1e2d45;
+  --accent:#3b82f6;
+  --accent2:#60a5fa;
+  --success:#10b981;
+  --danger:#ef4444;
+  --warning:#f59e0b;
+  --text:#f1f5f9;
+  --muted:#64748b;
+  --muted2:#94a3b8;
+  --font:'DM Sans',sans-serif;
+  --mono:'DM Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;font-size:14px}
+
+/* NAV */
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100}
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-logo{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.nav-logo svg{width:16px;height:16px;fill:white}
+.nav-title{font-weight:600;font-size:13px;letter-spacing:.5px}
+.nav-sub{font-size:10px;color:var(--muted2);letter-spacing:1px;font-family:var(--mono)}
+.status-pill{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--muted2)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--success)}
+.dot.busy{background:var(--accent);animation:pulse 1s infinite}
+.dot.err{background:var(--danger)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* TABS */
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1;min-width:80px;padding:14px 8px;text-align:center;font-size:11px;font-weight:500;letter-spacing:.8px;color:var(--muted);border:none;background:transparent;cursor:pointer;font-family:var(--font);border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.tab.active{color:var(--accent2);border-bottom-color:var(--accent)}
+
+/* SECTIONS */
+.section{display:none;padding:16px;max-width:600px;margin:0 auto}
+.section.active{display:block}
+
+/* FORM ELEMENTS */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:10px;letter-spacing:1.2px;color:var(--muted2);margin-bottom:6px;font-family:var(--mono)}
+select,input[type=text]{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:11px 14px;font-size:13px;font-family:var(--font);border-radius:8px;outline:none;transition:border .2s;-webkit-appearance:none}
+select:focus,input[type=text]:focus{border-color:var(--accent)}
+select option{background:var(--surface)}
+.hint{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}
+
+/* UPLOAD */
+.upload-zone{border:1.5px dashed var(--border);background:var(--surface2);border-radius:10px;padding:28px 16px;text-align:center;cursor:pointer;transition:all .2s}
+.upload-zone:hover,.upload-zone.has{border-color:var(--accent);border-style:solid}
+.upload-zone .u-icon{font-size:24px;color:var(--muted);margin-bottom:8px}
+.upload-zone p{font-size:12px;color:var(--muted2)}
+.upload-zone.has p{color:var(--success)}
+.preview-img{width:100%;max-height:160px;object-fit:cover;border-radius:8px;margin-top:10px;display:none}
+
+/* BTN */
+.btn{width:100%;padding:13px;background:var(--accent);color:#fff;border:none;font-family:var(--font);font-size:13px;font-weight:600;letter-spacing:.5px;cursor:pointer;border-radius:8px;margin-top:6px;transition:all .15s}
+.btn:hover{background:#2563eb}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted2)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent2);background:transparent}
+
+/* RESULT */
+.result-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:14px;display:none}
+.result-box.show{display:block}
+.result-label{font-size:10px;letter-spacing:1.2px;color:var(--muted);margin-bottom:8px;font-family:var(--mono)}
+.result-body{font-size:13px;line-height:1.7;white-space:pre-line}
+.result-body.ok{color:var(--success)}
+.result-body.err{color:var(--danger)}
+
+/* STATS CARDS */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px}
+.stat-card .s-label{font-size:10px;letter-spacing:1px;color:var(--muted2);font-family:var(--mono);margin-bottom:4px}
+.stat-card .s-val{font-size:26px;font-weight:600;line-height:1}
+.stat-card .s-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.stat-card.ok .s-val{color:var(--success)}
+.stat-card.sold .s-val{color:var(--accent2)}
+.stat-card.warn .s-val{color:var(--warning)}
+
+/* CHART */
+.chart-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px}
+.chart-title{font-size:11px;letter-spacing:1px;color:var(--muted2);font-family:var(--mono);margin-bottom:14px}
+.chart-wrap{position:relative;height:180px}
+
+/* TABLE */
+.inv-table{width:100%;border-collapse:collapse;font-size:12px}
+.inv-table th{text-align:left;padding:8px 10px;font-size:10px;letter-spacing:1px;color:var(--muted);font-family:var(--mono);font-weight:400;border-bottom:1px solid var(--border)}
+.inv-table td{padding:10px 10px;border-bottom:1px solid var(--border);color:var(--text)}
+.inv-table tr:last-child td{border-bottom:none}
+.inv-table tr:hover td{background:rgba(59,130,246,.05)}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500}
+.badge.ok{background:rgba(16,185,129,.15);color:#34d399}
+.badge.sold{background:rgba(59,130,246,.15);color:#60a5fa}
+.empty-state{text-align:center;padding:32px 16px;color:var(--muted);font-size:13px}
+
+/* SEARCH BAR */
+.search-row{display:flex;gap:8px;margin-bottom:12px}
+.search-row input{flex:1}
+.search-row .btn{width:auto;padding:11px 16px;margin-top:0}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:16px 0}
+.section-title{font-size:10px;letter-spacing:1.2px;color:var(--muted);font-family:var(--mono);margin-bottom:10px}
+
+footer{text-align:center;padding:20px 16px;font-size:10px;color:var(--muted);letter-spacing:1px;border-top:1px solid var(--border);margin-top:24px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">
+      <svg viewBox="0 0 16 16"><path d="M2 3h12v2H2zm0 4h8v2H2zm0 4h10v2H2z"/></svg>
+    </div>
+    <div>
+      <div class="nav-title">Somos Enlace</div>
+      <div class="nav-sub">ÓPTICAS JOHNY</div>
+    </div>
+  </div>
+  <div class="status-pill">
+    <div class="dot" id="dot"></div>
+    <span id="status-text">listo</span>
+  </div>
+</nav>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('ingreso')">INGRESO</button>
+  <button class="tab" onclick="switchTab('venta')">VENTA</button>
+  <button class="tab" onclick="switchTab('consulta')">CONSULTA</button>
+  <button class="tab" onclick="switchTab('stats')">STATS</button>
+</div>
+
+<!-- INGRESO -->
+<div class="section active" id="tab-ingreso">
+  <div class="field">
+    <label>SUCURSAL</label>
+    <select id="sucursal-ingreso">
+      <option value="">Selecciona tu sucursal...</option>
+      <option>Sucursal 1</option><option>Sucursal 2</option>
+      <option>Sucursal 3</option><option>Sucursal 4</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>FOTO DEL ARMAZÓN</label>
+    <div class="upload-zone" id="upload-zone" onclick="document.getElementById('foto-input').click()">
+      <div class="u-icon">📷</div>
+      <p>Toca para tomar foto o subir imagen</p>
+    </div>
+    <img class="preview-img" id="preview-img" alt="Vista previa">
+    <input type="file" id="foto-input" accept="image/*" capture="environment" style="display:none" onchange="handleFoto(this)">
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div class="field">
+      <label>PRECIO</label>
+      <input type="text" id="precio" placeholder="Ej: 850">
+    </div>
+    <div class="field">
+      <label>NOTAS</label>
+      <input type="text" id="notas" placeholder="Color, detalle...">
+    </div>
+  </div>
+  <p class="hint" style="margin-bottom:10px">Claude leerá marca, modelo y código automáticamente desde la foto.</p>
+  <button class="btn" id="btn-ingreso" onclick="enviarIngreso()">REGISTRAR ARMAZÓN</button>
+  <div class="result-box" id="res-ingreso">
+    <div class="result-label">RESULTADO</div>
+    <div class="result-body" id="res-ingreso-body"></div>
+  </div>
+</div>
+
+<!-- VENTA -->
+<div class="section" id="tab-venta">
+  <div class="field">
+    <label>SUCURSAL</label>
+    <select id="sucursal-venta">
+      <option value="">Selecciona tu sucursal...</option>
+      <option>Sucursal 1</option><option>Sucursal 2</option>
+      <option>Sucursal 3</option><option>Sucursal 4</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>MODELO O DIMENSIONES</label>
+    <input type="text" id="codigo-venta" placeholder="Ej: RB3025 o 52-18-140">
+    <p class="hint">Escribe el modelo o dimensiones grabadas en la varilla del armazón.</p>
+  </div>
+  <div class="field">
+    <label>NOMBRE DEL CLIENTE</label>
+    <input type="text" id="nombre-cliente" placeholder="Nombre completo">
+  </div>
+  <button class="btn" id="btn-venta" onclick="enviarVenta()">REGISTRAR VENTA</button>
+  <div class="result-box" id="res-venta">
+    <div class="result-label">RESULTADO</div>
+    <div class="result-body" id="res-venta-body"></div>
+  </div>
+</div>
+
+<!-- CONSULTA -->
+<div class="section" id="tab-consulta">
+  <div class="field">
+    <label>SUCURSAL</label>
+    <select id="sucursal-consulta">
+      <option value="">Selecciona tu sucursal...</option>
+      <option>Sucursal 1</option><option>Sucursal 2</option>
+      <option>Sucursal 3</option><option>Sucursal 4</option>
+    </select>
+  </div>
+  <div class="search-row">
+    <input type="text" id="busqueda" placeholder="Marca, modelo o dimensiones...">
+    <button class="btn" id="btn-consulta" onclick="enviarConsulta()">BUSCAR</button>
+  </div>
+  <div id="tabla-wrapper"></div>
+</div>
+
+<!-- STATS -->
+<div class="section" id="tab-stats">
+  <div class="stats-grid" id="stats-cards">
+    <div class="stat-card ok"><div class="s-label">DISPONIBLES</div><div class="s-val" id="s-disp">—</div><div class="s-sub">en inventario</div></div>
+    <div class="stat-card sold"><div class="s-label">VENDIDOS</div><div class="s-val" id="s-vend">—</div><div class="s-sub">total histórico</div></div>
+    <div class="stat-card warn" style="grid-column:1/-1"><div class="s-label">TOTAL REGISTROS</div><div class="s-val" id="s-total">—</div><div class="s-sub">en la base</div></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">DISPONIBLE VS VENDIDO POR SUCURSAL</div>
+    <div class="chart-wrap"><canvas id="chart-sucursal"></canvas></div>
+  </div>
+  <button class="btn btn-outline" onclick="cargarStats()">↻ ACTUALIZAR</button>
+</div>
+
+<footer>Somos Enlace IA · www.quieroaprenderia.com</footer>
+
+<script>
+const WEBHOOK_INGRESO  = 'https://hook.us2.make.com/dr3c8ay5ampwon7k14uvmidmpv789gkh';
+const WEBHOOK_VENTA    = 'https://hook.us2.make.com/nk2yb86an7nkiawgb7b8n5cjxyrc2cys';
+const WEBHOOK_CONSULTA = 'https://hook.us2.make.com/5zr86luxal7pen23timuqlak7stedbdi';
+const WEBHOOK_STATS    = 'https://hook.us2.make.com/sqspdxnqiky7mw8tg537osw99hrk5bmk';
+
+let chartSucursal = null;
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['ingreso','venta','consulta','stats'][i] === tab));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'stats') cargarStats();
+}
+
+function setStatus(s) {
+  const d = document.getElementById('dot');
+  const t = document.getElementById('status-text');
+  d.className = 'dot' + (s === 'listo' ? '' : s === 'procesando' ? ' busy' : ' err');
+  t.textContent = s;
+}
+
+function showResult(id, msg, tipo) {
+  const box = document.getElementById('res-' + id);
+  const body = document.getElementById('res-' + id + '-body');
+  body.textContent = msg;
+  body.className = 'result-body ' + (tipo || '');
+  box.classList.add('show');
+  box.scrollIntoView({behavior:'smooth'});
+}
+
+function handleFoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('preview-img');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    const zone = document.getElementById('upload-zone');
+    zone.classList.add('has');
+    zone.querySelector('p').textContent = '✓ ' + file.name;
+  };
+  reader.readAsDataURL(file);
+}
+
+function comprimirFoto(file) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const max = 800;
+        let w = img.width, h = img.height;
+        if (w > h && w > max) { h = Math.round(h * max / w); w = max; }
+        else if (h > max) { w = Math.round(w * max / h); h = max; }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.7).split(',')[1]);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function enviarIngreso() {
+  const sucursal = document.getElementById('sucursal-ingreso').value;
+  const precio   = document.getElementById('precio').value.trim();
+  const notas    = document.getElementById('notas').value.trim();
+  const fi       = document.getElementById('foto-input');
+  if (!sucursal)    { showResult('ingreso','Selecciona tu sucursal.','err'); return; }
+  if (!fi.files[0]) { showResult('ingreso','Sube la foto del armazón.','err'); return; }
+  if (!precio)      { showResult('ingreso','Ingresa el precio.','err'); return; }
+  const btn = document.getElementById('btn-ingreso');
+  btn.disabled = true; btn.textContent = 'PROCESANDO...'; setStatus('procesando');
+  try {
+    const base64 = await comprimirFoto(fi.files[0]);
+    const r = await fetch(WEBHOOK_INGRESO, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({sucursal, precio, notas, foto: base64}) });
+    if (!r.ok) throw new Error(r.status);
+    const data = await r.json();
+    showResult('ingreso', '✓ Armazón registrado\nMarca: ' + (data.marca||'—') + '\nModelo: ' + (data.modelo||'—'), 'ok');
+    setStatus('listo');
+    fi.value = '';
+    document.getElementById('preview-img').style.display = 'none';
+    document.getElementById('upload-zone').classList.remove('has');
+    document.getElementById('upload-zone').querySelector('p').textContent = 'Toca para tomar foto o subir imagen';
+    document.getElementById('precio').value = '';
+    document.getElementById('notas').value = '';
+  } catch { showResult('ingreso','Error al registrar. Intenta de nuevo.','err'); setStatus('error'); }
+  finally { btn.disabled = false; btn.textContent = 'REGISTRAR ARMAZÓN'; }
+}
+
+async function enviarVenta() {
+  const sucursal = document.getElementById('sucursal-venta').value;
+  const codigo   = document.getElementById('codigo-venta').value.trim();
+  const cliente  = document.getElementById('nombre-cliente').value.trim();
+  if (!sucursal) { showResult('venta','Selecciona tu sucursal.','err'); return; }
+  if (!codigo)   { showResult('venta','Ingresa modelo o dimensiones.','err'); return; }
+  if (!cliente)  { showResult('venta','Ingresa el nombre del cliente.','err'); return; }
+  const btn = document.getElementById('btn-venta');
+  btn.disabled = true; btn.textContent = 'PROCESANDO...'; setStatus('procesando');
+  try {
+    const r = await fetch(WEBHOOK_VENTA, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({sucursal, busqueda: codigo, nombre_cliente: cliente}) });
+    if (!r.ok) throw new Error(r.status);
+    showResult('venta', '✓ Venta registrada\nCliente: ' + cliente + '\nArmazón: ' + codigo, 'ok');
+    setStatus('listo');
+    document.getElementById('codigo-venta').value = '';
+    document.getElementById('nombre-cliente').value = '';
+  } catch { showResult('venta','Error al registrar. Intenta de nuevo.','err'); setStatus('error'); }
+  finally { btn.disabled = false; btn.textContent = 'REGISTRAR VENTA'; }
+}
+
+async function enviarConsulta() {
+  const sucursal = document.getElementById('sucursal-consulta').value;
+  const busqueda = document.getElementById('busqueda').value.trim();
+  if (!sucursal) { document.getElementById('tabla-wrapper').innerHTML = '<div class="empty-state">Selecciona tu sucursal.</div>'; return; }
+  const btn = document.getElementById('btn-consulta');
+  btn.disabled = true; btn.textContent = '...'; setStatus('procesando');
+  try {
+    const r = await fetch(WEBHOOK_CONSULTA, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({sucursal, busqueda}) });
+    if (!r.ok) throw new Error(r.status);
+    let raw = await r.text();
+    let data; try { data = JSON.parse(raw); } catch { data = {}; }
+    const records = (data.records || []).filter(rec => rec.fields && Object.keys(rec.fields).length > 0);
+    if (!records.length) {
+      document.getElementById('tabla-wrapper').innerHTML = '<div class="empty-state">Sin resultados para esa búsqueda.</div>';
+    } else {
+      let html = '<table class="inv-table"><thead><tr><th>MARCA</th><th>MODELO</th><th>DIM.</th><th>PRECIO</th><th>STATUS</th></tr></thead><tbody>';
+      records.forEach(rec => {
+        const f = rec.fields || {};
+        const marca = f.Marca || '—';
+        const modelo = f.Modelo || '—';
+        const dims = f.Dimensiones || '—';
+        const precio = f.Precio ? '$' + f.Precio.toLocaleString() : '—';
+        const status = f.Status ? f.Status.name || f.Status : '—';
+        const badgeClass = status === 'Disponible' ? 'ok' : 'sold';
+        html += `<tr><td><strong>${marca}</strong></td><td style="font-family:var(--mono);font-size:11px">${modelo}</td><td style="font-family:var(--mono);font-size:11px;color:var(--muted2)">${dims}</td><td style="color:var(--accent2)">${precio}</td><td><span class="badge ${badgeClass}">${status}</span></td></tr>`;
+      });
+      html += '</tbody></table>';
+      document.getElementById('tabla-wrapper').innerHTML = html;
+    }
+    setStatus('listo');
+  } catch { document.getElementById('tabla-wrapper').innerHTML = '<div class="empty-state">Error en la búsqueda. Intenta de nuevo.</div>'; setStatus('error'); }
+  finally { btn.disabled = false; btn.textContent = 'BUSCAR'; }
+}
+
+async function cargarStats() {
+  setStatus('procesando');
+  try {
+    const r = await fetch(WEBHOOK_STATS, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({}) });
+    if (!r.ok) throw new Error(r.status);
+    let raw = await r.text();
+    let data; try { data = JSON.parse(raw); } catch { data = {}; }
+    const records = (data.records || []).filter(rec => rec.fields && Object.keys(rec.fields).length > 0);
+
+    let disp = 0, vend = 0;
+    const sucursales = ['Sucursal 1','Sucursal 2','Sucursal 3','Sucursal 4'];
+    const dispPorSuc = {}, vendPorSuc = {};
+    sucursales.forEach(s => { dispPorSuc[s] = 0; vendPorSuc[s] = 0; });
+
+    records.forEach(rec => {
+      const f = rec.fields || {};
+      const status = f.Status ? (f.Status.name || f.Status) : '';
+      const suc = f.Sucursal ? (f.Sucursal.name || f.Sucursal) : '';
+      if (status === 'Disponible') { disp++; if (dispPorSuc[suc] !== undefined) dispPorSuc[suc]++; }
+      if (status === 'Vendido')    { vend++; if (vendPorSuc[suc] !== undefined) vendPorSuc[suc]++; }
+    });
+
+    document.getElementById('s-disp').textContent = disp;
+    document.getElementById('s-vend').textContent = vend;
+    document.getElementById('s-total').textContent = records.length;
+
+    const labels = sucursales.map(s => s.replace('Sucursal ','S'));
+    const dispData = sucursales.map(s => dispPorSuc[s]);
+    const vendData = sucursales.map(s => vendPorSuc[s]);
+
+    if (chartSucursal) chartSucursal.destroy();
+    const ctx = document.getElementById('chart-sucursal').getContext('2d');
+    chartSucursal = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Disponible', data: dispData, backgroundColor: 'rgba(16,185,129,.7)', borderRadius: 4 },
+          { label: 'Vendido',    data: vendData, backgroundColor: 'rgba(59,130,246,.7)',  borderRadius: 4 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+        scales: {
+          x: { ticks: { color: '#64748b', font: { size: 11 } }, grid: { color: '#1e2d45' } },
+          y: { ticks: { color: '#64748b', font: { size: 11 }, stepSize: 1 }, grid: { color: '#1e2d45' }, beginAtZero: true }
+        }
+      }
+    });
+    setStatus('listo');
+  } catch { setStatus('error'); }
+}
+</script>
+</body>
+</html>
