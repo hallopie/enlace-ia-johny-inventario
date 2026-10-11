@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ópticas Johny · Inventario</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --piedra:#3A3630; --piedra-2:#2C2924; --dorado:#C9A227; --oxido:#B5651D;
+    --verde:#5A8577; --pergamino:#EDE0C0; --texto:#EDE0C0; --tenue:#B9AD92;
+    --error:#E0664F; --ok:#7FB59F;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--piedra-2);color:var(--texto);font-family:'Space Mono',monospace;font-size:16px}
+  header{background:var(--piedra);padding:16px;border-bottom:2px solid var(--dorado)}
+  header h1{font-family:'Kalam',cursive;margin:0;font-size:26px;color:var(--pergamino)}
+  header small{color:var(--tenue)}
+  .wrap{max-width:640px;margin:0 auto;padding:16px}
+  label{display:block;margin:14px 0 6px;color:var(--tenue);font-size:14px}
+  input,select{width:100%;padding:12px;background:var(--piedra);color:var(--texto);border:1px solid #5a544a;border-radius:4px;font-family:inherit;font-size:16px}
+  input:focus,select:focus{outline:none;border-color:var(--dorado)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .foto{margin-top:4px;border:1.5px dashed #5a544a;border-radius:6px;background:var(--piedra);padding:26px 16px;text-align:center;cursor:pointer;color:var(--tenue)}
+  .foto.has{border:1.5px solid var(--dorado);color:var(--ok)}
+  .foto .ico{font-size:28px;display:block;margin-bottom:6px}
+  #preview{width:100%;max-height:200px;object-fit:contain;border-radius:6px;margin-top:10px;display:none;background:#000}
+  .hint{color:var(--tenue);font-size:13px;margin-top:14px;line-height:1.5}
+  button.main{width:100%;margin-top:18px;padding:15px;background:var(--dorado);color:var(--piedra-2);border:0;border-radius:6px;font-family:inherit;font-weight:700;font-size:16px;cursor:pointer}
+  button.main:disabled{opacity:.5}
+  .msg{margin-top:16px;padding:14px;border-radius:6px;display:none;line-height:1.6}
+  .msg.ok{display:block;background:rgba(127,181,159,.15);border:1px solid var(--ok)}
+  .msg.err{display:block;background:rgba(224,102,79,.15);border:1px solid var(--error)}
+  .msg b{color:var(--dorado)}
+  footer{text-align:center;color:var(--tenue);font-size:12px;padding:24px 16px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Ópticas Johny</h1>
+  <small>Inventario · entrada de armazones · <span id="suc-label"></span></small>
+</header>
+<div class="wrap">
+  <label>Sucursal *</label>
+  <select id="sucursal">
+    <option>Sucursal 1</option><option>Sucursal 2</option><option>Sucursal 3</option><option>Sucursal 4</option>
+  </select>
+
+  <label>Foto del armazón *</label>
+  <div class="foto" id="zona"><span class="ico">📷</span><span id="zona-txt">Toca para tomar la foto de la varilla</span></div>
+  <img id="preview" alt="Vista previa del armazón">
+  <input type="file" id="foto" accept="image/*" capture="environment" hidden>
+
+  <label>Precio de venta ($) *</label><input id="precio" type="number" inputmode="decimal" min="0">
+  <label>Notas</label><input id="notas" placeholder="Color, detalle…">
+
+  <p class="hint">La marca, el modelo y las medidas se leen solos desde la foto.</p>
+  <button class="main" id="btn">REGISTRAR ARMAZÓN</button>
+  <div class="msg" id="msg"></div>
+</div>
+<footer>Hecho por Sótano Bajo</footer>
+
+<script>
+const WEBHOOK_INGRESO = 'https://hook.us2.make.com/dr3c8ay5ampwon7k14uvmidmpv789gkh';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const limpio = s => String(s ?? '').replace(/["\\]/g, "'").replace(/\s+/g, ' ').trim();
+function show(cls, html){ const m=$('msg'); m.className='msg '+cls; m.innerHTML=html; }
+
+try { if (localStorage.suc) $('sucursal').value = localStorage.suc; } catch(e) {}
+const updSuc = () => $('suc-label').textContent = $('sucursal').value;
+updSuc();
+$('sucursal').onchange = () => { updSuc(); try{localStorage.suc=$('sucursal').value}catch(e){} };
+
+$('zona').onclick = () => $('foto').click();
+$('foto').onchange = () => {
+  const f = $('foto').files[0]; if (!f) return;
+  $('preview').src = URL.createObjectURL(f); $('preview').style.display = 'block';
+  $('zona').classList.add('has'); $('zona-txt').textContent = '✓ Foto lista (toca para cambiarla)';
+};
+
+function comprimir(file){
+  return new Promise((ok, bad) => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 1000; let w = img.width, h = img.height;
+      if (Math.max(w,h) > max) { const k = max / Math.max(w,h); w = Math.round(w*k); h = Math.round(h*k); }
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      ok(c.toDataURL('image/jpeg', 0.75).split(',')[1]);
+    };
+    img.onerror = bad;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+$('btn').onclick = async () => {
+  const f = $('foto').files[0];
+  const precio = Number($('precio').value || 0);
+  const falta = [];
+  if (!f) falta.push('foto');
+  if (!precio) falta.push('precio de venta');
+  if (falta.length) return show('err', 'Falta: ' + falta.join(', '));
+
+  const b = $('btn'); b.disabled = true; b.textContent = 'LEYENDO FOTO…';
+  show('ok', 'Leyendo la foto, tarda unos segundos…');
+  try {
+    const foto = await comprimir(f);
+    const r = await fetch(WEBHOOK_INGRESO, {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({sucursal: $('sucursal').value, precio, notas: limpio($('notas').value), foto})});
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    if (d.success === false) throw new Error(d.mensaje || 'error');
+    show('ok', `✓ Armazón registrado<br>Marca: <b>${esc(d.marca || '—')}</b><br>Modelo: <b>${esc(d.modelo || '—')}</b>` +
+      (d.dimensiones ? `<br>Medidas: <b>${esc(d.dimensiones)}</b>` : ''));
+    $('foto').value = ''; $('preview').style.display = 'none';
+    $('zona').classList.remove('has'); $('zona-txt').textContent = 'Toca para tomar la foto de la varilla';
+    ['precio','notas'].forEach(i => $(i).value = '');
+  } catch(e) {
+    show('err', 'No se pudo registrar. Revisa la conexión e intenta de nuevo.');
+  } finally { b.disabled = false; b.textContent = 'REGISTRAR ARMAZÓN'; }
+};
+</script>
+</body>
+</html>
