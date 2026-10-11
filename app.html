@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ópticas Johny · Mostrador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --piedra:#3A3630; --piedra-2:#2C2924; --dorado:#C9A227; --oxido:#B5651D;
+    --verde:#5A8577; --pergamino:#EDE0C0; --texto:#EDE0C0; --tenue:#B9AD92;
+    --error:#E0664F; --ok:#7FB59F;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--piedra-2);color:var(--texto);font-family:'Space Mono',monospace;font-size:16px}
+  header{background:var(--piedra);padding:16px;border-bottom:2px solid var(--dorado)}
+  header h1{font-family:'Kalam',cursive;margin:0;font-size:26px;color:var(--pergamino)}
+  header small{color:var(--tenue)}
+  .wrap{max-width:640px;margin:0 auto;padding:16px}
+  .tabs{display:flex;gap:8px;margin-bottom:16px}
+  .tab{flex:1;padding:12px 8px;background:var(--piedra);color:var(--tenue);border:1px solid #4a453d;border-radius:6px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer}
+  .tab.on{background:var(--dorado);color:var(--piedra-2);border-color:var(--dorado)}
+  section{display:none}
+  section.on{display:block}
+  label{display:block;margin:14px 0 6px;color:var(--tenue);font-size:14px}
+  input,select,textarea{width:100%;padding:12px;background:var(--piedra);color:var(--texto);border:1px solid #5a544a;border-radius:4px;font-family:inherit;font-size:16px}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--dorado)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  button.main{width:100%;margin-top:20px;padding:15px;background:var(--dorado);color:var(--piedra-2);border:0;border-radius:6px;font-family:inherit;font-weight:700;font-size:16px;cursor:pointer}
+  button.main:disabled{opacity:.5}
+  .msg{margin-top:16px;padding:14px;border-radius:6px;display:none;line-height:1.5}
+  .msg.ok{display:block;background:rgba(127,181,159,.15);border:1px solid var(--ok)}
+  .msg.err{display:block;background:rgba(224,102,79,.15);border:1px solid var(--error)}
+  .big{font-family:'Kalam',cursive;font-size:34px;color:var(--dorado)}
+  .card{background:var(--piedra);border:1px solid #4a453d;border-radius:6px;padding:14px;margin-top:12px}
+  .card .t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .card .o{font-family:'Kalam',cursive;font-size:24px;color:var(--dorado)}
+  .pill{font-size:12px;padding:3px 8px;border-radius:12px;background:#4a453d}
+  .pill.lab{background:var(--oxido);color:#fff}
+  .pill.listo{background:var(--verde);color:#fff}
+  .card p{margin:6px 0;color:var(--tenue);font-size:14px}
+  .card button{margin-top:10px;width:100%;padding:12px;border:0;border-radius:6px;font-family:inherit;font-weight:700;font-size:15px;cursor:pointer}
+  .b-llego{background:var(--verde);color:#fff}
+  .b-entregado{background:#5a544a;color:var(--texto)}
+  .search{display:flex;gap:8px}
+  .search button{padding:0 18px;background:var(--dorado);border:0;border-radius:4px;font-family:inherit;font-weight:700;cursor:pointer}
+  footer{text-align:center;color:var(--tenue);font-size:12px;padding:24px 16px}
+  a{color:var(--dorado)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Ópticas Johny</h1>
+  <small>Mostrador · <span id="suc-label"></span></small>
+</header>
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab on" data-s="venta">Nueva venta</button>
+    <button class="tab" data-s="pedidos">Lentes llegaron</button>
+  </div>
+
+  <!-- VENTA -->
+  <section id="venta" class="on">
+    <label>Sucursal *</label>
+    <select id="sucursal">
+      <option>Sucursal 1</option><option>Sucursal 2</option><option>Sucursal 3</option><option>Sucursal 4</option>
+    </select>
+    <label>Armazón (código, modelo o marca) *</label>
+    <input id="busqueda" placeholder="Ej. 42-21 o LEON">
+    <label>Nombre del cliente *</label><input id="nombre_cliente">
+    <div class="row">
+      <div><label>Email del cliente *</label><input id="email" type="email" inputmode="email"></div>
+      <div><label>WhatsApp</label><input id="whatsapp" type="tel" inputmode="tel" placeholder="10 dígitos"></div>
+    </div>
+    <label>Tipo de lente</label>
+    <input id="tipo_lente" list="tipos" placeholder="Monofocal, progresivo…">
+    <datalist id="tipos"><option>Monofocal</option><option>Bifocal</option><option>Progresivo</option><option>Monofocal antirreflejante</option><option>Progresivo antirreflejante</option></datalist>
+    <div class="row">
+      <div><label>Precio lentes ($)</label><input id="precio_lentes" type="number" inputmode="decimal" min="0"></div>
+      <div><label>Anticipo ($)</label><input id="anticipo" type="number" inputmode="decimal" min="0"></div>
+    </div>
+    <label>Notas</label><textarea id="notas" rows="2"></textarea>
+    <button class="main" id="btn-venta">REGISTRAR VENTA</button>
+    <div class="msg" id="msg-venta"></div>
+  </section>
+
+  <!-- PEDIDOS -->
+  <section id="pedidos">
+    <label>Número de orden o nombre del cliente</label>
+    <div class="search">
+      <input id="q" placeholder="Ej. 171 o Chuchito">
+      <button id="btn-buscar">BUSCAR</button>
+    </div>
+    <div class="msg" id="msg-pedidos"></div>
+    <div id="lista"></div>
+  </section>
+</div>
+<footer>Hecho por Sótano Bajo · <a href="index.html">Registrar armazón por foto</a></footer>
+
+<script>
+const WEBHOOK_VENTA   = 'https://hook.us2.make.com/nk2yb86an7nkiawgb7b8n5cjxyrc2cys';
+const WEBHOOK_PEDIDOS = 'https://hook.us2.make.com/hr5oms5v47eobcl1pcign5xnkdwyrley';
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => '$' + Number(n || 0).toLocaleString('es-MX');
+
+// recordar sucursal y vendedor en este celular
+try {
+  if (localStorage.suc) $('sucursal').value = localStorage.suc;
+} catch(e) {}
+const updSuc = () => $('suc-label').textContent = $('sucursal').value;
+updSuc();
+$('sucursal').onchange = () => { updSuc(); try{localStorage.suc=$('sucursal').value}catch(e){} };
+
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === t));
+  document.querySelectorAll('section').forEach(s => s.classList.toggle('on', s.id === t.dataset.s));
+});
+
+function show(id, cls, html){ const m=$(id); m.className='msg '+cls; m.innerHTML=html; }
+
+async function post(url, payload){
+  const r = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+
+// ---------- VENTA ----------
+$('btn-venta').onclick = async () => {
+  const p = {
+    sucursal: $('sucursal').value,
+    busqueda: $('busqueda').value.trim(), nombre_cliente: $('nombre_cliente').value.trim(),
+    email: $('email').value.trim(), whatsapp: $('whatsapp').value.replace(/\D/g,''),
+    tipo_lente: $('tipo_lente').value.trim(),
+    precio_lentes: Number($('precio_lentes').value || 0), anticipo: Number($('anticipo').value || 0),
+    notas: $('notas').value.trim()
+  };
+  const falta = [];
+  if (!p.busqueda) falta.push('armazón');
+  if (!p.nombre_cliente) falta.push('nombre del cliente');
+  if (!/^\S+@\S+\.\S+$/.test(p.email)) falta.push('email válido');
+  if (falta.length) return show('msg-venta','err','Falta: ' + falta.join(', '));
+
+  const b = $('btn-venta'); b.disabled = true; b.textContent = 'REGISTRANDO…';
+  try {
+    const d = await post(WEBHOOK_VENTA, p);
+    if (!d.success) { show('msg-venta','err', esc(d.mensaje || 'No se pudo registrar.')); return; }
+    show('msg-venta','ok',
+      `Venta registrada. Dale al cliente su número de orden:<div class="big">#${esc(d.orden)}</div>` +
+      `${esc(d.armazon)} · Total ${money(d.total)} · Resta ${money(d.saldo)}`);
+    ['busqueda','nombre_cliente','email','whatsapp','tipo_lente','precio_lentes','anticipo','notas'].forEach(i => $(i).value='');
+  } catch(e) {
+    show('msg-venta','err','No hay conexión con el sistema. Intenta de nuevo.');
+  } finally { b.disabled = false; b.textContent = 'REGISTRAR VENTA'; }
+};
+
+// ---------- PEDIDOS ----------
+async function buscar(){
+  const q = $('q').value.trim().replace(/^#/, '');
+  if (!q) return;
+  $('lista').innerHTML = ''; show('msg-pedidos','ok','Buscando…');
+  try {
+    const d = await post(WEBHOOK_PEDIDOS, {accion:'buscar', q});
+    const recs = d.records || [];
+    if (!recs.length) return show('msg-pedidos','err','No encontré pedidos pendientes con eso.');
+    $('msg-pedidos').className = 'msg';
+    $('lista').innerHTML = recs.map(r => {
+      const f = r.fields, st = f.Status || '';
+      const pill = st === 'En laboratorio' ? 'lab' : 'listo';
+      return `<div class="card" id="c-${r.id}">
+        <div class="t"><span class="o">#${esc(f.Orden)}</span><span class="pill ${pill}">${esc(st)}</span></div>
+        <p><b>${esc(f['Cliente Nombre'])}</b> · ${esc(f.Sucursal)}</p>
+        <p>${esc(f['Cliente Email'] || 'sin email')} ${f['Cliente WhatsApp'] ? '· ' + esc(f['Cliente WhatsApp']) : ''}</p>
+        <p>${esc(f['Tipo de Lente'] || '')} · Vendido ${esc(f['Fecha Venta'] || '')} · Resta ${money(f.Saldo)}</p>
+        ${st === 'En laboratorio'
+          ? `<button class="b-llego" data-id="${r.id}" data-a="llego">YA LLEGARON · AVISAR AL CLIENTE</button>`
+          : `<button class="b-entregado" data-id="${r.id}" data-a="entregado">MARCAR COMO ENTREGADO</button>`}
+      </div>`;
+    }).join('');
+  } catch(e) { show('msg-pedidos','err','No hay conexión con el sistema. Intenta de nuevo.'); }
+}
+$('btn-buscar').onclick = buscar;
+$('q').onkeydown = e => { if (e.key === 'Enter') buscar(); };
+
+$('lista').onclick = async e => {
+  const b = e.target.closest('button[data-a]'); if (!b) return;
+  b.disabled = true; const txt = b.textContent; b.textContent = 'GUARDANDO…';
+  try {
+    const d = await post(WEBHOOK_PEDIDOS, {accion: b.dataset.a, id: b.dataset.id});
+    if (!d.success) throw 0;
+    const c = $('c-' + b.dataset.id);
+    if (b.dataset.a === 'llego') {
+      c.querySelector('.pill').className = 'pill listo';
+      c.querySelector('.pill').textContent = 'Listo para entregar';
+      b.className = 'b-entregado'; b.dataset.a = 'entregado'; b.textContent = 'MARCAR COMO ENTREGADO'; b.disabled = false;
+      show('msg-pedidos','ok', `Listo. El pedido de ${esc(d.cliente)} quedó como listo para entregar.`);
+    } else {
+      c.remove(); show('msg-pedidos','ok','Pedido entregado.');
+    }
+  } catch(err) {
+    b.disabled = false; b.textContent = txt;
+    show('msg-pedidos','err','No se pudo guardar. Intenta de nuevo.');
+  }
+};
+</script>
+</body>
+</html>
