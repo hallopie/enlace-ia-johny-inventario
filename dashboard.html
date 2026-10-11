@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ópticas Johny · Tablero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --piedra:#3A3630; --piedra-2:#2C2924; --linea:#4a453d; --dorado:#C9A227;
+    --texto:#EDE0C0; --tenue:#B9AD92; --apagado:#8C826E;
+    --bien:#7FB59F; --mal:#E0664F; --aviso:#E2B04A;
+    --s1:#B08A12; --s2:#2E9A78; --s3:#D06A2A; --s4:#6C82D6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--piedra-2);color:var(--texto);font-family:'Space Mono',monospace;font-size:15px}
+  header{background:var(--piedra);padding:14px 16px;border-bottom:2px solid var(--dorado);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  header h1{font-family:'Kalam',cursive;margin:0;font-size:26px}
+  header small{color:var(--tenue);display:block}
+  .wrap{max-width:1100px;margin:0 auto;padding:16px}
+  .filtros{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-bottom:18px}
+  .filtros label{font-size:12px;color:var(--tenue);display:block;margin-bottom:4px}
+  select,button.ghost,input{background:var(--piedra);color:var(--texto);border:1px solid var(--linea);border-radius:4px;padding:9px 10px;font-family:inherit;font-size:15px}
+  button.ghost{cursor:pointer}
+  .upd{color:var(--apagado);font-size:12px;margin-left:auto;align-self:center}
+  h2{font-family:'Kalam',cursive;font-size:22px;margin:28px 0 10px;color:var(--texto)}
+  h2 small{font-family:'Space Mono',monospace;font-size:12px;color:var(--apagado);margin-left:8px}
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .tile{background:var(--piedra);border:1px solid var(--linea);border-radius:8px;padding:14px}
+  .tile .l{font-size:12px;color:var(--tenue)}
+  .tile .v{font-size:26px;font-weight:700;margin-top:6px;letter-spacing:-.5px}
+  .tile .s{font-size:12px;color:var(--apagado);margin-top:4px}
+  .card{background:var(--piedra);border:1px solid var(--linea);border-radius:8px;padding:16px;position:relative}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  svg text{font-family:'Space Mono',monospace}
+  .tip{position:fixed;pointer-events:none;background:#1e1c18;border:1px solid var(--linea);border-radius:6px;padding:8px 10px;font-size:12px;line-height:1.5;display:none;z-index:50;max-width:240px}
+  .tip b{color:var(--texto)}
+  .aviso{margin-top:10px;padding:10px 12px;border-radius:6px;background:rgba(226,176,74,.1);border:1px solid rgba(226,176,74,.45);font-size:13px;line-height:1.5}
+  .aviso::before{content:"⚠ ";color:var(--aviso)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;color:var(--apagado);font-weight:400;font-size:12px;padding:6px 8px;border-bottom:1px solid var(--linea)}
+  td{padding:8px;border-bottom:1px solid #3f3a33}
+  td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+  tr:last-child td{border-bottom:0}
+  .pill{font-size:11px;padding:2px 8px;border-radius:10px;background:#4a453d;white-space:nowrap}
+  .pill.lab{background:#5c3a1c}
+  .pill.listo{background:#2b4a40}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+  .vacio{color:var(--apagado);font-size:13px;padding:10px 0}
+  .scroll{overflow-x:auto}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--tenue);margin-bottom:8px}
+  /* candado */
+  #lock{position:fixed;inset:0;background:var(--piedra-2);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
+  #lock .box{background:var(--piedra);border:1px solid var(--linea);border-radius:10px;padding:24px;width:100%;max-width:340px}
+  #lock h1{font-family:'Kalam',cursive;margin:0 0 4px}
+  #lock input{width:100%;margin:14px 0 10px}
+  #lock button{width:100%;padding:12px;background:var(--dorado);color:var(--piedra-2);border:0;border-radius:6px;font-family:inherit;font-weight:700;font-size:15px;cursor:pointer}
+  #lock .e{color:var(--mal);font-size:13px;min-height:18px;margin-top:8px}
+  #estado{padding:40px 0;text-align:center;color:var(--tenue)}
+  @media (max-width:760px){
+    .tiles{grid-template-columns:1fr 1fr}
+    .grid2{grid-template-columns:1fr}
+    .tile .v{font-size:22px}
+    .upd{margin-left:0;width:100%}
+  }
+</style>
+</head>
+<body>
+<div id="lock">
+  <div class="box">
+    <h1>Ópticas Johny</h1>
+    <div style="color:var(--tenue);font-size:13px">Tablero del negocio</div>
+    <input id="pw" type="password" placeholder="Contraseña" autocomplete="current-password">
+    <button id="entrar">ENTRAR</button>
+    <div class="e" id="pw-e"></div>
+  </div>
+</div>
+
+<header>
+  <div><h1>Ópticas Johny</h1><small>Tablero del negocio</small></div>
+</header>
+
+<div class="wrap">
+  <div class="filtros">
+    <div><label>Sucursal</label>
+      <select id="f-suc"><option value="">Todas</option><option>Sucursal 1</option><option>Sucursal 2</option><option>Sucursal 3</option><option>Sucursal 4</option></select></div>
+    <div><label>Mes</label><select id="f-mes"></select></div>
+    <div><label>&nbsp;</label><button class="ghost" id="recargar">↻ Actualizar</button></div>
+    <div class="upd" id="upd"></div>
+  </div>
+
+  <div id="estado">Cargando datos…</div>
+  <div id="contenido" hidden>
+    <div class="tiles" id="tiles"></div>
+
+    <h2>Ventas por día <small id="sub-dias"></small></h2>
+    <div class="card"><div class="legend" id="leg-dias"></div><div id="ch-dias"></div></div>
+
+    <h2>Utilidad del mes <small>ventas menos nómina y gastos fijos</small></h2>
+    <div class="card"><div id="ch-util"></div><div id="aviso-util"></div></div>
+
+    <div class="grid2">
+      <div>
+        <h2>Ventas por sucursal <small>del mes</small></h2>
+        <div class="card"><div id="ch-suc"></div></div>
+      </div>
+      <div>
+        <h2>Inventario disponible</h2>
+        <div class="card"><div id="tb-inv"></div></div>
+      </div>
+    </div>
+
+    <h2>Pedidos pendientes <small>lentes que no se han entregado</small></h2>
+    <div class="card scroll"><div id="tb-ped"></div></div>
+
+    <div class="grid2">
+      <div>
+        <h2>Asistencia de hoy</h2>
+        <div class="card scroll"><div id="tb-hoy"></div></div>
+      </div>
+      <div>
+        <h2>Nómina del mes <small>por empleado</small></h2>
+        <div class="card scroll"><div id="tb-nom"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+// ===== Configuración =====
+const API_URL = 'https://hook.us2.make.com/ako76n73grhit8jt4mtxpr1jini4dl8u';
+// SHA-256 de la contraseña (candado visual, no es seguridad real)
+const PW_HASH = 'e23512505816208eed730f396c3c1d68b986b66b0decdbb70ca1a31750d62bf7';
+const SUCS = ['Sucursal 1','Sucursal 2','Sucursal 3','Sucursal 4'];
+const COLOR = {'Sucursal 1':'var(--s1)','Sucursal 2':'var(--s2)','Sucursal 3':'var(--s3)','Sucursal 4':'var(--s4)'};
+const TZ = 'America/Mexico_City';
+const DEMO = new URLSearchParams(location.search).has('demo');
+
+// ===== Utilidades =====
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = v => Array.isArray(v) ? num(v[0]) : (Number(v) || 0);
+const txt = v => Array.isArray(v) ? (v[0] ?? '') : (v ?? '');
+const money = n => '$' + Math.round(n).toLocaleString('es-MX');
+const moneyK = n => Math.abs(n) >= 1000 ? '$' + (n/1000).toLocaleString('es-MX',{maximumFractionDigits:1}) + 'k' : money(n);
+const hoyStr = () => new Intl.DateTimeFormat('en-CA',{timeZone:TZ}).format(new Date());
+const horaMX = iso => iso ? new Intl.DateTimeFormat('es-MX',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}).format(new Date(iso)) : '—';
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const mesNombre = ym => { const [y,m] = ym.split('-'); return MESES[+m-1] + ' ' + y; };
+const diasDelMes = ym => { const [y,m] = ym.split('-').map(Number); return new Date(y, m, 0).getDate(); };
+
+async function sha256(s){
+  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2,'0')).join('');
+}
+
+// ===== Tooltip =====
+const tip = $('tip');
+function tipShow(e, html){ tip.innerHTML = html; tip.style.display = 'block'; tipMove(e); }
+function tipMove(e){
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  let x = e.clientX + 14, y = e.clientY + 14;
+  if (x + w > innerWidth - 8) x = e.clientX - w - 14;
+  if (y + h > innerHeight - 8) y = e.clientY - h - 14;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+function tipHide(){ tip.style.display = 'none'; }
+function bindTips(root){
+  root.querySelectorAll('[data-tip]').forEach(el => {
+    el.addEventListener('mouseenter', e => tipShow(e, el.dataset.tip));
+    el.addEventListener('mousemove', tipMove);
+    el.addEventListener('mouseleave', tipHide);
+    el.addEventListener('click', e => tipShow(e, el.dataset.tip));
+  });
+}
+
+// ===== Datos =====
+let RAW = null;
+
+async function cargar(){
+  $('estado').hidden = false; $('estado').textContent = 'Cargando datos…'; $('contenido').hidden = true;
+  try {
+    RAW = DEMO ? demoData() : await (await fetch(API_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'})).json();
+    ['pedidos','inventario','jornadas','empleados','gastos'].forEach(k => { if (!Array.isArray(RAW[k])) RAW[k] = []; });
+    llenarMeses();
+    $('estado').hidden = true; $('contenido').hidden = false;
+    pintar();
+    $('upd').textContent = 'Actualizado ' + new Intl.DateTimeFormat('es-MX',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}).format(new Date());
+    $('estado').hidden = true; $('contenido').hidden = false;
+  } catch(e) {
+    $('estado').textContent = 'No se pudieron cargar los datos. Revisa tu conexión y toca Actualizar.';
+  }
+}
+
+function llenarMeses(){
+  const sel = $('f-mes'), actual = sel.value;
+  const set = new Set([hoyStr().slice(0,7)]);
+  RAW.pedidos.forEach(r => { const f = r.fields['Fecha Venta']; if (f) set.add(f.slice(0,7)); });
+  RAW.jornadas.forEach(r => { const f = r.fields.Fecha; if (f) set.add(f.slice(0,7)); });
+  const meses = [...set].sort().reverse();
+  sel.innerHTML = meses.map(m => `<option value="${m}">${mesNombre(m)}</option>`).join('');
+  if (meses.includes(actual)) sel.value = actual;
+}
+
+// ===== Pintar todo =====
+function pintar(){
+  const suc = $('f-suc').value, mes = $('f-mes').value, hoy = hoyStr();
+  const enSuc = s => !suc || s === suc;
+
+  const pedidos = RAW.pedidos.map(r => r.fields).filter(f => enSuc(txt(f.Sucursal)));
+  const delMes = pedidos.filter(f => (f['Fecha Venta']||'').startsWith(mes));
+  const deHoy = pedidos.filter(f => f['Fecha Venta'] === hoy);
+  const ventasMes = delMes.reduce((a,f) => a + num(f.Total), 0);
+  const ventasHoy = deHoy.reduce((a,f) => a + num(f.Total), 0);
+  const pendientes = pedidos.filter(f => txt(f.Status) !== 'Entregado');
+  const porCobrar = pendientes.reduce((a,f) => a + Math.max(0, num(f.Saldo)), 0);
+
+  // --- Nómina del mes ---
+  const empleados = RAW.empleados.map(r => ({id:r.id, ...r.fields}));
+  const empById = Object.fromEntries(empleados.map(e => [e.id, e]));
+  const jornadas = RAW.jornadas.map(r => r.fields).filter(f => enSuc(txt(f.Sucursal)));
+  const jorMes = jornadas.filter(f => (f.Fecha||'').startsWith(mes));
+  const nomina = {};
+  jorMes.forEach(f => {
+    const id = txt(f.Empleado) || f['Empleado ID']; const e = empById[id] || {};
+    const k = id || f.Jornada;
+    nomina[k] ??= {nombre: e.Nombre || (f.Jornada||'').replace(/\s\d{4}-\d{2}-\d{2}$/,''), suc: txt(f.Sucursal) || e.Sucursal, dias:0, horas:0, pago:0, forma: e['Forma de Pago'] || 'Por hora'};
+    nomina[k].dias++; nomina[k].horas += num(f.Horas); nomina[k].pago += num(f['Pago del Día']);
+  });
+  // Sueldos fijos: proporcional a los días transcurridos del mes
+  const totalDias = diasDelMes(mes);
+  const diasTrans = mes === hoy.slice(0,7) ? +hoy.slice(8,10) : (mes < hoy.slice(0,7) ? totalDias : 0);
+  empleados.filter(e => e.Status !== 'Baja' && enSuc(e.Sucursal) && /Fijo/.test(e['Forma de Pago']||'')).forEach(e => {
+    const periodo = /quincenal/i.test(e['Forma de Pago']) ? 15 : 7;
+    const pago = num(e['Sueldo Fijo']) * diasTrans / periodo;
+    nomina[e.id] ??= {nombre:e.Nombre, suc:e.Sucursal, dias:0, horas:0, pago:0, forma:e['Forma de Pago']};
+    nomina[e.id].pago = pago; nomina[e.id].forma = e['Forma de Pago'];
+  });
+  const totalNomina = Object.values(nomina).reduce((a,n) => a + n.pago, 0);
+
+  // --- Costos ---
+  const gastos = RAW.gastos.map(r => r.fields).filter(f => suc ? txt(f.Sucursal) === suc : true);
+  const gastosFijos = gastos.reduce((a,f) => a + num(f['Monto Mensual']), 0);
+  const utilidad = ventasMes - totalNomina - gastosFijos;
+
+  // --- Tiles ---
+  const ticket = delMes.length ? ventasMes / delMes.length : 0;
+  $('tiles').innerHTML = [
+    ['Ventas de hoy', money(ventasHoy), deHoy.length + (deHoy.length === 1 ? ' venta' : ' ventas')],
+    ['Ventas de ' + MESES[+mes.slice(5)-1], money(ventasMes), delMes.length + ' ventas · ticket ' + money(ticket)],
+    ['Por cobrar', money(porCobrar), pendientes.length + ' pedidos sin entregar'],
+    ['Utilidad del mes', `<span style="color:${utilidad >= 0 ? 'var(--bien)' : 'var(--mal)'}">${money(utilidad)}</span>`, 'ventas − nómina − gastos fijos'],
+  ].map(([l,v,s]) => `<div class="tile"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
+
+  pintarDias(delMes, mes, suc);
+  pintarUtilidad(ventasMes, totalNomina, gastosFijos, utilidad, gastos.length, suc);
+  pintarSucursales(mes);
+  pintarInventario(suc);
+  pintarPendientes(pendientes, hoy);
+  pintarHoy(jornadas.filter(f => f.Fecha === hoy));
+  pintarNomina(nomina);
+}
+
+// ----- Ventas por día: barras (una por día), apiladas por sucursal si es "Todas"
+function pintarDias(delMes, mes, suc){
+  const n = diasDelMes(mes);
+  const dias = Array.from({length:n}, (_,i) => ({d:i+1, porSuc:{}, total:0}));
+  delMes.forEach(f => {
+    const d = +f['Fecha Venta'].slice(8,10), s = txt(f.Sucursal) || 'Sin sucursal';
+    dias[d-1].porSuc[s] = (dias[d-1].porSuc[s]||0) + num(f.Total); dias[d-1].total += num(f.Total);
+  });
+  const series = suc ? [suc] : SUCS;
+  $('leg-dias').innerHTML = series.length > 1 ? series.map(s => `<span><span class="dot" style="background:${COLOR[s]}"></span>${s}</span>`).join('') : '';
+  $('sub-dias').textContent = mesNombre(mes);
+  const max = Math.max(1, ...dias.map(d => d.total));
+  const W = Math.max(320, $('ch-dias').clientWidth || 960), H = W < 600 ? 200 : 220, L = 50, B = 26, T = 10, R = 8;
+  const pw = W - L - R, ph = H - B - T, bw = pw / n, gap = Math.min(4, bw * .25);
+  const y = v => T + ph - v / niceMax(max) * ph;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Ventas por día de ${mesNombre(mes)}">`;
+  ticks(niceMax(max)).forEach(t => {
+    svg += `<line x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}" stroke="#4a453d" stroke-width="1"/>`;
+    svg += `<text x="${L-6}" y="${y(t)+4}" fill="#8C826E" font-size="11" text-anchor="end">${moneyK(t)}</text>`;
+  });
+  dias.forEach((d,i) => {
+    const x = L + i*bw + gap/2, w = bw - gap;
+    let acc = 0;
+    const parts = series.filter(s => d.porSuc[s]);
+    parts.forEach((s, j) => {
+      const v = d.porSuc[s], y0 = y(acc), y1 = y(acc + v);
+      const top = j === parts.length - 1;
+      const h = Math.max(0, y0 - y1 - (top ? 0 : 2));
+      svg += top ? barTop(x, y1, w, h, COLOR[s]) : `<rect x="${x}" y="${y1 + 2}" width="${w}" height="${h}" fill="${COLOR[s]}"/>`;
+      acc += v;
+    });
+    const detalle = parts.map(s => `<span class="dot" style="background:${COLOR[s]}"></span>${s}: ${money(d.porSuc[s])}`).join('<br>');
+    svg += `<rect x="${L + i*bw}" y="${T}" width="${bw}" height="${ph}" fill="transparent" data-tip="${esc(`<b>${d.d} de ${MESES[+mes.slice(5)-1]}</b><br>${d.total ? 'Total: ' + money(d.total) + (series.length > 1 && detalle ? '<br>' + detalle : '') : 'Sin ventas'}`)}"/>`;
+    if (d.d === 1 || d.d % (W < 600 ? 10 : 5) === 0) svg += `<text x="${L + i*bw + bw/2}" y="${H-8}" fill="#8C826E" font-size="11" text-anchor="middle">${d.d}</text>`;
+  });
+  svg += `<line x1="${L}" x2="${W-R}" y1="${T+ph}" y2="${T+ph}" stroke="#8C826E" stroke-width="1"/></svg>`;
+  $('ch-dias').innerHTML = delMes.length ? svg : '<div class="vacio">Todavía no hay ventas registradas este mes.</div>';
+  bindTips($('ch-dias'));
+}
+function barTop(x, y, w, h, fill){
+  // barra con esquinas superiores redondeadas de 4px, base recta
+  const r = Math.min(4, w/2, h);
+  return `<path d="M${x},${y+h} V${y+r} Q${x},${y} ${x+r},${y} H${x+w-r} Q${x+w},${y} ${x+w},${y+r} V${y+h} Z" fill="${fill}"/>`;
+}
+function niceMax(v){ const p = Math.pow(10, Math.floor(Math.log10(v))); const m = v / p; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p; }
+function ticks(max){ return [0, max/4, max/2, max*3/4, max]; }
+
+// ----- Utilidad: cascada (ventas → menos costos → utilidad)
+function pintarUtilidad(ventas, nomina, fijos, util, nGastos, suc){
+  const pasos = [
+    {l:'Ventas', v:ventas, tipo:'total'},
+    {l:'Nómina', v:-nomina},
+    {l:'Gastos fijos', c:'Gastos', v:-fijos},
+    {l:'Utilidad', v:util, tipo:'total'},
+  ];
+  const W = Math.max(320, $('ch-util').clientWidth || 960), H = 240, L = W < 600 ? 44 : 64, R = 10, T = 22, B = 30, chico = W < 600;
+  const pw = W - L - R, ph = H - T - B, n = pasos.length, bw = pw / n, w = Math.min(120, bw * .55);
+  let lo = 0, hi = 0, acc = 0;
+  pasos.forEach(p => { if (p.tipo === 'total') { hi = Math.max(hi, p.v); lo = Math.min(lo, p.v); acc = p.v; } else { acc += p.v; hi = Math.max(hi, acc - p.v, acc); lo = Math.min(lo, acc); } });
+  hi = niceMax(Math.max(1, hi)); lo = lo < 0 ? -niceMax(-lo) : 0;
+  const y = v => T + (hi - v) / (hi - lo) * ph;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Cascada de utilidad del mes">`;
+  [lo, 0, hi/2, hi].filter((t,i,a) => a.indexOf(t) === i).forEach(t => {
+    svg += `<line x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}" stroke="${t === 0 ? '#8C826E' : '#4a453d'}" stroke-width="1"/>`;
+    svg += `<text x="${L-6}" y="${y(t)+4}" fill="#8C826E" font-size="11" text-anchor="end">${moneyK(t)}</text>`;
+  });
+  acc = 0;
+  pasos.forEach((p, i) => {
+    let a, b;
+    if (p.tipo === 'total') { a = 0; b = p.v; acc = p.v; } else { a = acc; b = acc + p.v; acc = b; }
+    const top = Math.max(a,b), bot = Math.min(a,b);
+    const x = L + i*bw + (bw - w)/2;
+    const color = p.tipo === 'total' ? (p.v >= 0 ? (i === 0 ? '#C9A227' : '#7FB59F') : '#E0664F') : '#8C826E';
+    svg += `<rect x="${x}" y="${y(top)}" width="${w}" height="${Math.max(1, y(bot) - y(top))}" rx="3" fill="${color}" data-tip="${esc(`<b>${p.l}</b><br>${money(p.v)}`)}"/>`;
+    if (i < n - 1) svg += `<line x1="${x + w}" x2="${x + bw}" y1="${y(acc)}" y2="${y(acc)}" stroke="#8C826E" stroke-dasharray="3 3"/>`;
+    svg += `<text x="${x + w/2}" y="${y(top) - 6}" fill="#EDE0C0" font-size="${chico ? 10 : 12}" text-anchor="middle">${p.tipo === 'total' ? (chico ? moneyK(p.v) : money(p.v)) : '−' + (chico ? moneyK(-p.v) : money(-p.v))}</text>`;
+    svg += `<text x="${x + w/2}" y="${H - 10}" fill="#B9AD92" font-size="${chico ? 10 : 12}" text-anchor="middle">${chico && p.c ? p.c : p.l}</text>`;
+  });
+  svg += '</svg>';
+  $('ch-util').innerHTML = svg; bindTips($('ch-util'));
+  const avisos = [];
+  if (!nGastos) avisos.push('No hay gastos fijos capturados' + (suc ? ' para esta sucursal' : '') + ' (renta, luz, etc.).');
+  else if (!suc) {} else avisos.push('Los gastos marcados como "General" solo se suman cuando ves todas las sucursales.');
+  $('aviso-util').innerHTML = avisos.map(a => `<div class="aviso">${a}</div>`).join('');
+}
+
+// ----- Ventas por sucursal (barras horizontales, color de cada sucursal)
+function pintarSucursales(mes){
+  const tot = Object.fromEntries(SUCS.map(s => [s, 0])), cnt = Object.fromEntries(SUCS.map(s => [s, 0]));
+  RAW.pedidos.forEach(r => { const f = r.fields; if ((f['Fecha Venta']||'').startsWith(mes)) { const s = txt(f.Sucursal); if (s in tot) { tot[s] += num(f.Total); cnt[s]++; } } });
+  const max = Math.max(1, ...Object.values(tot));
+  const W = 460, rowH = 36, L = 96, R = 90, H = SUCS.length * rowH + 6;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Ventas por sucursal">`;
+  SUCS.forEach((s, i) => {
+    const y = i * rowH + 6, w = tot[s] / max * (W - L - R), h = 18;
+    svg += `<text x="0" y="${y + 14}" fill="#B9AD92" font-size="12">${s}</text>`;
+    svg += `<rect x="${L}" y="${y}" width="${W - L - R}" height="${h}" fill="transparent" data-tip="${esc(`<b>${s}</b><br>${money(tot[s])} · ${cnt[s]} ventas`)}"/>`;
+    if (w > 0) svg += `<path d="M${L},${y} H${L + w - Math.min(4,w)} Q${L + w},${y} ${L + w},${y + Math.min(4,w)} V${y + h - Math.min(4,w)} Q${L + w},${y + h} ${L + w - Math.min(4,w)},${y + h} H${L} Z" fill="${COLOR[s]}" pointer-events="none"/>`;
+    svg += `<text x="${L + w + 8}" y="${y + 14}" fill="#EDE0C0" font-size="12">${moneyK(tot[s])}</text>`;
+  });
+  svg += `<line x1="${L}" x2="${L}" y1="0" y2="${H}" stroke="#8C826E"/></svg>`;
+  $('ch-suc').innerHTML = svg; bindTips($('ch-suc'));
+}
+
+// ----- Inventario disponible
+function pintarInventario(suc){
+  const rows = SUCS.filter(s => !suc || s === suc).map(s => {
+    const inv = RAW.inventario.map(r => r.fields).filter(f => txt(f.Sucursal) === s);
+    return {s, n: inv.length, costo: inv.reduce((a,f) => a + num(f['Costo Compra']), 0), venta: inv.reduce((a,f) => a + num(f.Precio), 0)};
+  });
+  const t = rows.reduce((a,r) => ({n:a.n + r.n, costo:a.costo + r.costo, venta:a.venta + r.venta}), {n:0,costo:0,venta:0});
+  $('tb-inv').innerHTML = `<table><thead><tr><th>Sucursal</th><th class="n">Armazones</th><th class="n">Valor a precio</th></tr></thead><tbody>` +
+    rows.map(r => `<tr><td><span class="dot" style="background:${COLOR[r.s]}"></span>${r.s}</td><td class="n">${r.n}</td><td class="n">${money(r.venta)}</td></tr>`).join('') +
+    (rows.length > 1 ? `<tr><td><b>Total</b></td><td class="n"><b>${t.n}</b></td><td class="n"><b>${money(t.venta)}</b></td></tr>` : '') +
+    `</tbody></table>`;
+}
+
+// ----- Pedidos pendientes
+function pintarPendientes(pend, hoy){
+  if (!pend.length) { $('tb-ped').innerHTML = '<div class="vacio">No hay pedidos pendientes.</div>'; return; }
+  const dias = f => Math.round((new Date(hoy) - new Date(f['Fecha Venta'])) / 864e5);
+  const orden = [...pend].sort((a,b) => (txt(a.Status) === 'Listo para entregar' ? 0 : 1) - (txt(b.Status) === 'Listo para entregar' ? 0 : 1) || dias(b) - dias(a));
+  $('tb-ped').innerHTML = `<table><thead><tr><th>Orden</th><th>Cliente</th><th>Sucursal</th><th>Estado</th><th class="n">Días</th><th class="n">Saldo</th></tr></thead><tbody>` +
+    orden.slice(0, 30).map(f => { const st = txt(f.Status); return `<tr><td>#${esc(f.Orden)}</td><td>${esc(f['Cliente Nombre'])}</td><td>${esc(txt(f.Sucursal))}</td><td><span class="pill ${st === 'En laboratorio' ? 'lab' : 'listo'}">${esc(st)}</span></td><td class="n">${dias(f)}</td><td class="n">${money(num(f.Saldo))}</td></tr>`; }).join('') +
+    `</tbody></table>` + (orden.length > 30 ? `<div class="vacio">Y ${orden.length - 30} más…</div>` : '');
+}
+
+// ----- Asistencia de hoy
+function pintarHoy(jor){
+  if (!jor.length) { $('tb-hoy').innerHTML = '<div class="vacio">Nadie ha registrado entrada hoy.</div>'; return; }
+  const orden = [...jor].sort((a,b) => (a.Entrada||'').localeCompare(b.Entrada||''));
+  $('tb-hoy').innerHTML = `<table><thead><tr><th>Empleado</th><th>Sucursal</th><th>Entrada</th><th>Salida</th></tr></thead><tbody>` +
+    orden.map(f => `<tr><td>${esc((f.Jornada||'').replace(/\s\d{4}-\d{2}-\d{2}$/,''))}</td><td>${esc(txt(f.Sucursal))}</td><td>${horaMX(f.Entrada)}</td><td>${f.Salida ? horaMX(f.Salida) : '<span class="pill listo">trabajando</span>'}</td></tr>`).join('') +
+    `</tbody></table>`;
+}
+
+// ----- Nómina por empleado
+function pintarNomina(nom){
+  const rows = Object.values(nom).sort((a,b) => b.pago - a.pago);
+  if (!rows.length) { $('tb-nom').innerHTML = '<div class="vacio">Sin jornadas registradas este mes.</div>'; return; }
+  const total = rows.reduce((a,r) => a + r.pago, 0);
+  $('tb-nom').innerHTML = `<table><thead><tr><th>Empleado</th><th class="n">Días</th><th class="n">Horas</th><th class="n">Pago</th></tr></thead><tbody>` +
+    rows.map(r => `<tr><td>${esc(r.nombre)}<div style="font-size:11px;color:var(--apagado)">${esc(r.suc || '')} · ${esc(r.forma)}</div></td><td class="n">${r.dias}</td><td class="n">${r.horas.toFixed(1)}</td><td class="n">${money(r.pago)}</td></tr>`).join('') +
+    `<tr><td><b>Total</b></td><td></td><td></td><td class="n"><b>${money(total)}</b></td></tr></tbody></table>`;
+}
+
+// ===== Datos de demostración (?demo) =====
+function demoData(){
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const hoy = hoyStr(), [y, m, d] = hoy.split('-').map(Number);
+  const pedidos = [], inventario = [], jornadas = [], empleados = [], gastos = [];
+  const nombres = ['Ana López','Luis Ramírez','Sofía Cruz','Jorge Méndez','Carmen Ruiz','Pedro Sánchez','Laura Díaz','Miguel Torres'];
+  let orden = 100;
+  for (let dd = 1; dd <= d; dd++) {
+    const fecha = `${y}-${String(m).padStart(2,'0')}-${String(dd).padStart(2,'0')}`;
+    SUCS.forEach((s, si) => {
+      const n = Math.floor(rnd() * (3 - si * .5));
+      for (let k = 0; k < n; k++) {
+        const pa = 600 + Math.round(rnd() * 1400), pl = 800 + Math.round(rnd() * 2600), an = Math.round((pa + pl) * (.4 + rnd() * .6));
+        const st = dd < d - 7 ? 'Entregado' : rnd() < .5 ? 'En laboratorio' : 'Listo para entregar';
+        pedidos.push({fields:{Orden: ++orden, 'Fecha Venta': fecha, Sucursal: s, 'Cliente Nombre': nombres[Math.floor(rnd()*nombres.length)], Total: pa + pl, Saldo: st === 'Entregado' ? 0 : pa + pl - an, Status: st, 'Costo Armazón': rnd() < .85 ? [Math.round(pa * .45)] : []}});
+      }
+    });
+  }
+  SUCS.forEach(s => { for (let k = 0; k < 20 + Math.floor(rnd()*30); k++) { const p = 600 + Math.round(rnd()*1400); inventario.push({fields:{Sucursal:s, Precio:p, 'Costo Compra': Math.round(p*.45)}}); } });
+  const emp = [['Chuchita Pérez','Sucursal 1'],['Raúl Gómez','Sucursal 1'],['Diana Flores','Sucursal 2'],['Iván Castro','Sucursal 3'],['Paty Morales','Sucursal 4']];
+  emp.forEach(([n, s], i) => {
+    empleados.push({id:'e'+i, fields:{Nombre:n, Sucursal:s, 'Forma de Pago': i === 4 ? 'Fijo semanal' : 'Por hora', 'Pago por Hora': 55 + i*5, 'Sueldo Fijo': i === 4 ? 2800 : 0, Status:'Activo'}});
+    if (i === 4) return;
+    for (let dd = 1; dd <= d; dd++) {
+      if (rnd() < .15) continue;
+      const fecha = `${y}-${String(m).padStart(2,'0')}-${String(dd).padStart(2,'0')}`;
+      const ent = new Date(`${fecha}T${String(9 + Math.floor(rnd()*2)).padStart(2,'0')}:${String(Math.floor(rnd()*59)).padStart(2,'0')}:00-06:00`);
+      const hrs = dd === d ? 0 : 7.5 + rnd() * 2;
+      const sal = dd === d ? null : new Date(ent.getTime() + hrs * 36e5);
+      jornadas.push({fields:{Jornada:`${n} ${fecha}`, Empleado:['e'+i], Fecha:fecha, Entrada:ent.toISOString(), Salida: sal && sal.toISOString(), Horas: +hrs.toFixed(2), 'Pago del Día': +(hrs * (55 + i*5)).toFixed(2), Sucursal:[s]}});
+    }
+  });
+  [['Renta','Sucursal 1',14000],['Renta','Sucursal 2',12000],['Renta','Sucursal 3',11000],['Renta','Sucursal 4',9500],['Luz y agua','General',3800],['Internet','General',1200]]
+    .forEach(([c,s,v]) => gastos.push({fields:{Concepto:c, Sucursal:s, 'Monto Mensual':v}}));
+  return {pedidos, inventario, jornadas, empleados, gastos};
+}
+
+// ===== Arranque =====
+async function entrar(){
+  const ok = DEMO || (await sha256($('pw').value)) === PW_HASH;
+  if (!ok) { $('pw-e').textContent = 'Contraseña incorrecta.'; return; }
+  try { sessionStorage.ok = '1'; } catch(e) {}
+  $('lock').remove(); cargar();
+}
+$('entrar').onclick = entrar;
+$('pw').onkeydown = e => { if (e.key === 'Enter') entrar(); };
+$('f-suc').onchange = pintar;
+$('f-mes').onchange = pintar;
+$('recargar').onclick = cargar;
+let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => RAW && pintar(), 200); });
+try { if (sessionStorage.ok === '1' || DEMO) { $('lock').remove(); cargar(); } } catch(e) { if (DEMO) { $('lock').remove(); cargar(); } }
+</script>
+</body>
+</html>
