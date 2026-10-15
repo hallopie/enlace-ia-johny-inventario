@@ -3,82 +3,96 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ópticas Johny · Tablero</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>Perfect Vision · Tablero</title>
 <style>
   :root{
-    --piedra:#3A3630; --piedra-2:#2C2924; --linea:#4a453d; --dorado:#C9A227;
-    --texto:#EDE0C0; --tenue:#B9AD92; --apagado:#8C826E;
-    --bien:#7FB59F; --mal:#E0664F; --aviso:#E2B04A;
-    --s1:#B08A12; --s2:#2E9A78; --s3:#D06A2A; --s4:#6C82D6;
+    --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#6f6d67; --grid:#e1e0d9; --axis:#c3c2b7;
+    --good:#006300; --bad:#b42323; --warn-bg:#fff4d6; --warn-ink:#6b4b00; --accent:#2a78d6;
+    --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+    --tipbg:#0b0b0b; --tipink:#f9f9f7; --chip:#efeee9; --chip-lab:#fff1d6; --chip-listo:#dff3e6;
   }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --page:#0d0d0d; --surface:#1a1a19; --ink:#fff; --ink2:#c3c2b7; --muted:#a09f97; --grid:#2c2c2a; --axis:#383835;
+    --good:#3ecf5a; --bad:#ff7a7a; --warn-bg:#3a2f0d; --warn-ink:#f3d58a; --accent:#3987e5;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    --tipbg:#fff; --tipink:#0d0d0d; --chip:#2c2c2a; --chip-lab:#3a2f0d; --chip-listo:#123a22; color-scheme:dark}}
+  :root[data-theme="dark"]{
+    --page:#0d0d0d; --surface:#1a1a19; --ink:#fff; --ink2:#c3c2b7; --muted:#a09f97; --grid:#2c2c2a; --axis:#383835;
+    --good:#3ecf5a; --bad:#ff7a7a; --warn-bg:#3a2f0d; --warn-ink:#f3d58a; --accent:#3987e5;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    --tipbg:#fff; --tipink:#0d0d0d; --chip:#2c2c2a; --chip-lab:#3a2f0d; --chip-listo:#123a22; color-scheme:dark}
+  /* nombres viejos que usa el script */
+  :root{--bien:var(--good);--mal:var(--bad);--apagado:var(--muted);--tenue:var(--ink2);--texto:var(--ink);--dorado:var(--accent);--linea:var(--grid)}
   *{box-sizing:border-box}
-  body{margin:0;background:var(--piedra-2);color:var(--texto);font-family:'Space Mono',monospace;font-size:15px}
-  header{background:var(--piedra);padding:14px 16px;border-bottom:2px solid var(--dorado);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-  header h1{font-family:'Kalam',cursive;margin:0;font-size:26px}
-  header small{color:var(--tenue);display:block}
-  .wrap{max-width:1100px;margin:0 auto;padding:16px}
-  .filtros{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-bottom:18px}
-  .filtros label{font-size:12px;color:var(--tenue);display:block;margin-bottom:4px}
-  select,button.ghost,input{background:var(--piedra);color:var(--texto);border:1px solid var(--linea);border-radius:4px;padding:9px 10px;font-family:inherit;font-size:15px}
-  button.ghost{cursor:pointer}
-  .upd{color:var(--apagado);font-size:12px;margin-left:auto;align-self:center}
-  h2{font-family:'Kalam',cursive;font-size:22px;margin:28px 0 10px;color:var(--texto)}
-  h2 small{font-family:'Space Mono',monospace;font-size:12px;color:var(--apagado);margin-left:8px}
-  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-  .tile{background:var(--piedra);border:1px solid var(--linea);border-radius:8px;padding:14px}
-  .tile .l{font-size:12px;color:var(--tenue)}
-  .tile .v{font-size:26px;font-weight:700;margin-top:6px;letter-spacing:-.5px}
-  .tile .s{font-size:12px;color:var(--apagado);margin-top:4px}
-  .card{background:var(--piedra);border:1px solid var(--linea);border-radius:8px;padding:16px;position:relative}
+  body{margin:0;background:var(--page);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{max-width:1120px;margin:0 auto;padding:20px 16px 12px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+  header h1{font:700 22px/1.2 system-ui,sans-serif;margin:0;letter-spacing:-.01em}
+  header small{color:var(--ink2);display:block;margin-top:2px;font-size:14px}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 16px 40px}
+  .filtros{position:sticky;top:0;z-index:5;background:var(--page);display:flex;gap:8px 16px;flex-wrap:wrap;align-items:end;padding:8px 0;border-bottom:1px solid var(--grid);margin-bottom:8px}
+  .filtros label{font-size:12px;color:var(--ink2);display:block;margin-bottom:4px}
+  select,button.ghost,input{background:var(--surface);color:var(--ink);border:1px solid var(--axis);border-radius:8px;padding:7px 11px;font:inherit;min-height:34px}
+  button.ghost{cursor:pointer;color:var(--ink2)}
+  .upd{color:var(--muted);font-size:12px;margin-left:auto;align-self:center}
+  h2{font:700 13px/1 system-ui;letter-spacing:.09em;text-transform:uppercase;color:var(--ink2);margin:32px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--grid)}
+  h2 small{font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted);margin-left:8px;font-size:12px}
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+  .tile{background:var(--surface);border:1px solid var(--grid);border-radius:10px;padding:14px}
+  .tile .l{font-size:12px;color:var(--ink2)}
+  .tile .v{font:700 24px/1.15 system-ui;font-variant-numeric:tabular-nums;margin-top:4px}
+  .tile .s{font-size:12px;color:var(--muted);margin-top:2px}
+  .card{background:var(--surface);border:1px solid var(--grid);border-radius:10px;padding:14px;position:relative;min-width:0}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  svg text{font-family:'Space Mono',monospace}
-  .tip{position:fixed;pointer-events:none;background:#1e1c18;border:1px solid var(--linea);border-radius:6px;padding:8px 10px;font-size:12px;line-height:1.5;display:none;z-index:50;max-width:240px}
-  .tip b{color:var(--texto)}
-  .aviso{margin-top:10px;padding:10px 12px;border-radius:6px;background:rgba(226,176,74,.1);border:1px solid rgba(226,176,74,.45);font-size:13px;line-height:1.5}
-  .aviso::before{content:"⚠ ";color:var(--aviso)}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;color:var(--apagado);font-weight:400;font-size:12px;padding:6px 8px;border-bottom:1px solid var(--linea)}
-  td{padding:8px;border-bottom:1px solid #3f3a33}
-  td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+  svg{display:block;max-width:100%;overflow:visible}
+  svg text{font-family:system-ui,sans-serif}
+  .tip{position:fixed;pointer-events:none;background:var(--tipbg);color:var(--tipink);border-radius:6px;padding:6px 9px;font-size:12px;line-height:1.35;display:none;z-index:50;max-width:260px}
+  .aviso{margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--warn-bg);color:var(--warn-ink);font-size:13px;line-height:1.5}
+  .aviso::before{content:"⚠ "}
+  table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+  th{text-align:left;color:var(--ink2);font-weight:600;font-size:12px;padding:6px 8px;border-bottom:1px solid var(--grid)}
+  td{padding:6px 8px;border-bottom:1px solid var(--grid)}
+  td.n,th.n{text-align:right}
   tr:last-child td{border-bottom:0}
-  .pill{font-size:11px;padding:2px 8px;border-radius:10px;background:#4a453d;white-space:nowrap}
-  .pill.lab{background:#5c3a1c}
-  .pill.listo{background:#2b4a40}
-  .dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
-  .vacio{color:var(--apagado);font-size:13px;padding:10px 0}
+  .pill{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--chip);white-space:nowrap}
+  .pill.lab{background:var(--chip-lab)}
+  .pill.listo{background:var(--chip-listo)}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+  .vacio{color:var(--muted);font-size:13px;padding:10px 0;font-style:italic}
   .scroll{overflow-x:auto}
-  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--tenue);margin-bottom:8px}
+  .legend{display:flex;gap:4px 14px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin-bottom:8px}
+  footer{max-width:1120px;margin:0 auto;padding:0 16px 32px;color:var(--muted);font-size:12px}
   /* candado */
-  #lock{position:fixed;inset:0;background:var(--piedra-2);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
-  #lock .box{background:var(--piedra);border:1px solid var(--linea);border-radius:10px;padding:24px;width:100%;max-width:340px}
-  #lock h1{font-family:'Kalam',cursive;margin:0 0 4px}
-  #lock input{width:100%;margin:14px 0 10px}
-  #lock button{width:100%;padding:12px;background:var(--dorado);color:var(--piedra-2);border:0;border-radius:6px;font-family:inherit;font-weight:700;font-size:15px;cursor:pointer}
-  #lock .e{color:var(--mal);font-size:13px;min-height:18px;margin-top:8px}
-  #estado{padding:40px 0;text-align:center;color:var(--tenue)}
+  #lock{position:fixed;inset:0;background:var(--page);display:grid;place-items:center;z-index:100;padding:24px 16px}
+  #lock .box{width:100%;max-width:520px}
+  #lock h1{font-size:26px;margin:0 0 4px;letter-spacing:-.01em}
+  #lock .row{display:flex;gap:8px;margin-top:22px}
+  #lock input{flex:1;min-width:0;padding:12px;border-radius:10px;font-size:16px}
+  #lock button{padding:12px 18px;border:0;border-radius:10px;background:var(--accent);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+  #lock .e{color:var(--bad);font-size:14px;min-height:22px;margin-top:8px}
+  #lock footer{padding:0;margin-top:26px;font-size:13px;color:var(--ink2)}
+  #estado{padding:40px 0;text-align:center;color:var(--ink2)}
   @media (max-width:760px){
     .tiles{grid-template-columns:1fr 1fr}
     .grid2{grid-template-columns:1fr}
-    .tile .v{font-size:22px}
+    .tile .v{font-size:20px}
     .upd{margin-left:0;width:100%}
+    header h1{font-size:19px}
   }
 </style>
 </head>
 <body>
 <div id="lock">
   <div class="box">
-    <h1>Ópticas Johny</h1>
-    <div style="color:var(--tenue);font-size:13px">Tablero del negocio</div>
-    <input id="pw" type="password" placeholder="Contraseña" autocomplete="current-password">
-    <button id="entrar">ENTRAR</button>
+    <h1>Perfect Vision</h1>
+    <div style="color:var(--ink2)">Tablero del negocio · ingresa tu contraseña.</div>
+    <div class="row"><input id="pw" type="password" placeholder="Contraseña" autocomplete="current-password"><button id="entrar">Entrar</button></div>
     <div class="e" id="pw-e"></div>
+    <footer>Hecho por Sótano Bajo</footer>
   </div>
 </div>
 
 <header>
-  <div><h1>Ópticas Johny</h1><small>Tablero del negocio</small></div>
+  <div><h1>Perfect Vision</h1><small>Tablero del negocio</small></div>
 </header>
 
 <div class="wrap">
@@ -97,7 +111,7 @@
     <h2>Ventas por día <small id="sub-dias"></small></h2>
     <div class="card"><div class="legend" id="leg-dias"></div><div id="ch-dias"></div></div>
 
-    <h2>Utilidad del mes <small>ventas menos nómina y gastos fijos</small></h2>
+    <h2>Utilidad del mes <small>ventas menos laboratorio, nómina y gastos fijos</small></h2>
     <div class="card"><div id="ch-util"></div><div id="aviso-util"></div></div>
 
     <div class="grid2">
@@ -126,6 +140,7 @@
     </div>
   </div>
 </div>
+<footer>Perfect Vision · datos de las apps de tienda vía Make → Airtable · Hecho por Sótano Bajo</footer>
 <div class="tip" id="tip"></div>
 
 <script>
@@ -243,7 +258,8 @@ function pintar(){
   // --- Costos ---
   const gastos = RAW.gastos.map(r => r.fields).filter(f => suc ? txt(f.Sucursal) === suc : true);
   const gastosFijos = gastos.reduce((a,f) => a + num(f['Monto Mensual']), 0);
-  const utilidad = ventasMes - totalNomina - gastosFijos;
+  const costoLab = delMes.reduce((a,f) => a + num(f['Costo Laboratorio']), 0);
+  const utilidad = ventasMes - costoLab - totalNomina - gastosFijos;
 
   // --- Tiles ---
   const ticket = delMes.length ? ventasMes / delMes.length : 0;
@@ -251,11 +267,11 @@ function pintar(){
     ['Ventas de hoy', money(ventasHoy), deHoy.length + (deHoy.length === 1 ? ' venta' : ' ventas')],
     ['Ventas de ' + MESES[+mes.slice(5)-1], money(ventasMes), delMes.length + ' ventas · ticket ' + money(ticket)],
     ['Por cobrar', money(porCobrar), pendientes.length + ' pedidos sin entregar'],
-    ['Utilidad del mes', `<span style="color:${utilidad >= 0 ? 'var(--bien)' : 'var(--mal)'}">${money(utilidad)}</span>`, 'ventas − nómina − gastos fijos'],
+    ['Utilidad del mes', `<span style="color:${utilidad >= 0 ? 'var(--bien)' : 'var(--mal)'}">${money(utilidad)}</span>`, 'después de laboratorio, nómina y fijos'],
   ].map(([l,v,s]) => `<div class="tile"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
 
   pintarDias(delMes, mes, suc);
-  pintarUtilidad(ventasMes, totalNomina, gastosFijos, utilidad, gastos.length, suc);
+  pintarUtilidad(ventasMes, costoLab, totalNomina, gastosFijos, utilidad, gastos.length, suc);
   pintarSucursales(mes);
   pintarInventario(suc);
   pintarPendientes(pendientes, hoy);
@@ -280,8 +296,8 @@ function pintarDias(delMes, mes, suc){
   const y = v => T + ph - v / niceMax(max) * ph;
   let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Ventas por día de ${mesNombre(mes)}">`;
   ticks(niceMax(max)).forEach(t => {
-    svg += `<line x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}" stroke="#4a453d" stroke-width="1"/>`;
-    svg += `<text x="${L-6}" y="${y(t)+4}" fill="#8C826E" font-size="11" text-anchor="end">${moneyK(t)}</text>`;
+    svg += `<line x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}" stroke="var(--grid)" stroke-width="1"/>`;
+    svg += `<text x="${L-6}" y="${y(t)+4}" fill="var(--muted)" font-size="11" text-anchor="end">${moneyK(t)}</text>`;
   });
   dias.forEach((d,i) => {
     const x = L + i*bw + gap/2, w = bw - gap;
@@ -296,9 +312,9 @@ function pintarDias(delMes, mes, suc){
     });
     const detalle = parts.map(s => `<span class="dot" style="background:${COLOR[s]}"></span>${s}: ${money(d.porSuc[s])}`).join('<br>');
     svg += `<rect x="${L + i*bw}" y="${T}" width="${bw}" height="${ph}" fill="transparent" data-tip="${esc(`<b>${d.d} de ${MESES[+mes.slice(5)-1]}</b><br>${d.total ? 'Total: ' + money(d.total) + (series.length > 1 && detalle ? '<br>' + detalle : '') : 'Sin ventas'}`)}"/>`;
-    if (d.d === 1 || d.d % (W < 600 ? 10 : 5) === 0) svg += `<text x="${L + i*bw + bw/2}" y="${H-8}" fill="#8C826E" font-size="11" text-anchor="middle">${d.d}</text>`;
+    if (d.d === 1 || d.d % (W < 600 ? 10 : 5) === 0) svg += `<text x="${L + i*bw + bw/2}" y="${H-8}" fill="var(--muted)" font-size="11" text-anchor="middle">${d.d}</text>`;
   });
-  svg += `<line x1="${L}" x2="${W-R}" y1="${T+ph}" y2="${T+ph}" stroke="#8C826E" stroke-width="1"/></svg>`;
+  svg += `<line x1="${L}" x2="${W-R}" y1="${T+ph}" y2="${T+ph}" stroke="var(--muted)" stroke-width="1"/></svg>`;
   $('ch-dias').innerHTML = delMes.length ? svg : '<div class="vacio">Todavía no hay ventas registradas este mes.</div>';
   bindTips($('ch-dias'));
 }
@@ -311,9 +327,10 @@ function niceMax(v){ const p = Math.pow(10, Math.floor(Math.log10(v))); const m 
 function ticks(max){ return [0, max/4, max/2, max*3/4, max]; }
 
 // ----- Utilidad: cascada (ventas → menos costos → utilidad)
-function pintarUtilidad(ventas, nomina, fijos, util, nGastos, suc){
+function pintarUtilidad(ventas, lab, nomina, fijos, util, nGastos, suc){
   const pasos = [
     {l:'Ventas', v:ventas, tipo:'total'},
+    {l:'Laboratorio', c:'Lab', v:-lab},
     {l:'Nómina', v:-nomina},
     {l:'Gastos fijos', c:'Gastos', v:-fijos},
     {l:'Utilidad', v:util, tipo:'total'},
@@ -326,8 +343,8 @@ function pintarUtilidad(ventas, nomina, fijos, util, nGastos, suc){
   const y = v => T + (hi - v) / (hi - lo) * ph;
   let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Cascada de utilidad del mes">`;
   [lo, 0, hi/2, hi].filter((t,i,a) => a.indexOf(t) === i).forEach(t => {
-    svg += `<line x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}" stroke="${t === 0 ? '#8C826E' : '#4a453d'}" stroke-width="1"/>`;
-    svg += `<text x="${L-6}" y="${y(t)+4}" fill="#8C826E" font-size="11" text-anchor="end">${moneyK(t)}</text>`;
+    svg += `<line x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}" stroke="${t === 0 ? 'var(--muted)' : 'var(--grid)'}" stroke-width="1"/>`;
+    svg += `<text x="${L-6}" y="${y(t)+4}" fill="var(--muted)" font-size="11" text-anchor="end">${moneyK(t)}</text>`;
   });
   acc = 0;
   pasos.forEach((p, i) => {
@@ -335,11 +352,11 @@ function pintarUtilidad(ventas, nomina, fijos, util, nGastos, suc){
     if (p.tipo === 'total') { a = 0; b = p.v; acc = p.v; } else { a = acc; b = acc + p.v; acc = b; }
     const top = Math.max(a,b), bot = Math.min(a,b);
     const x = L + i*bw + (bw - w)/2;
-    const color = p.tipo === 'total' ? (p.v >= 0 ? (i === 0 ? '#C9A227' : '#7FB59F') : '#E0664F') : '#8C826E';
+    const color = p.tipo === 'total' ? (p.v >= 0 ? (i === 0 ? 'var(--accent)' : 'var(--good)') : 'var(--bad)') : 'var(--muted)';
     svg += `<rect x="${x}" y="${y(top)}" width="${w}" height="${Math.max(1, y(bot) - y(top))}" rx="3" fill="${color}" data-tip="${esc(`<b>${p.l}</b><br>${money(p.v)}`)}"/>`;
-    if (i < n - 1) svg += `<line x1="${x + w}" x2="${x + bw}" y1="${y(acc)}" y2="${y(acc)}" stroke="#8C826E" stroke-dasharray="3 3"/>`;
-    svg += `<text x="${x + w/2}" y="${y(top) - 6}" fill="#EDE0C0" font-size="${chico ? 10 : 12}" text-anchor="middle">${p.tipo === 'total' ? (chico ? moneyK(p.v) : money(p.v)) : '−' + (chico ? moneyK(-p.v) : money(-p.v))}</text>`;
-    svg += `<text x="${x + w/2}" y="${H - 10}" fill="#B9AD92" font-size="${chico ? 10 : 12}" text-anchor="middle">${chico && p.c ? p.c : p.l}</text>`;
+    if (i < n - 1) svg += `<line x1="${x + w}" x2="${x + bw}" y1="${y(acc)}" y2="${y(acc)}" stroke="var(--muted)" stroke-dasharray="3 3"/>`;
+    svg += `<text x="${x + w/2}" y="${y(top) - 6}" fill="var(--ink)" font-size="${chico ? 10 : 12}" text-anchor="middle">${p.tipo === 'total' ? (chico ? moneyK(p.v) : money(p.v)) : '−' + (chico ? moneyK(-p.v) : money(-p.v))}</text>`;
+    svg += `<text x="${x + w/2}" y="${H - 10}" fill="var(--ink2)" font-size="${chico ? 10 : 12}" text-anchor="middle">${chico && p.c ? p.c : p.l}</text>`;
   });
   svg += '</svg>';
   $('ch-util').innerHTML = svg; bindTips($('ch-util'));
@@ -358,12 +375,12 @@ function pintarSucursales(mes){
   let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Ventas por sucursal">`;
   SUCS.forEach((s, i) => {
     const y = i * rowH + 6, w = tot[s] / max * (W - L - R), h = 18;
-    svg += `<text x="0" y="${y + 14}" fill="#B9AD92" font-size="12">${s}</text>`;
+    svg += `<text x="0" y="${y + 14}" fill="var(--ink2)" font-size="12">${s}</text>`;
     svg += `<rect x="${L}" y="${y}" width="${W - L - R}" height="${h}" fill="transparent" data-tip="${esc(`<b>${s}</b><br>${money(tot[s])} · ${cnt[s]} ventas`)}"/>`;
     if (w > 0) svg += `<path d="M${L},${y} H${L + w - Math.min(4,w)} Q${L + w},${y} ${L + w},${y + Math.min(4,w)} V${y + h - Math.min(4,w)} Q${L + w},${y + h} ${L + w - Math.min(4,w)},${y + h} H${L} Z" fill="${COLOR[s]}" pointer-events="none"/>`;
-    svg += `<text x="${L + w + 8}" y="${y + 14}" fill="#EDE0C0" font-size="12">${moneyK(tot[s])}</text>`;
+    svg += `<text x="${L + w + 8}" y="${y + 14}" fill="var(--ink)" font-size="12">${moneyK(tot[s])}</text>`;
   });
-  svg += `<line x1="${L}" x2="${L}" y1="0" y2="${H}" stroke="#8C826E"/></svg>`;
+  svg += `<line x1="${L}" x2="${L}" y1="0" y2="${H}" stroke="var(--muted)"/></svg>`;
   $('ch-suc').innerHTML = svg; bindTips($('ch-suc'));
 }
 
@@ -423,7 +440,7 @@ function demoData(){
       for (let k = 0; k < n; k++) {
         const pa = 600 + Math.round(rnd() * 1400), pl = 800 + Math.round(rnd() * 2600), an = Math.round((pa + pl) * (.4 + rnd() * .6));
         const st = dd < d - 7 ? 'Entregado' : rnd() < .5 ? 'En laboratorio' : 'Listo para entregar';
-        pedidos.push({fields:{Orden: ++orden, 'Fecha Venta': fecha, Sucursal: s, 'Cliente Nombre': nombres[Math.floor(rnd()*nombres.length)], Total: pa + pl, Saldo: st === 'Entregado' ? 0 : pa + pl - an, Status: st, 'Costo Armazón': rnd() < .85 ? [Math.round(pa * .45)] : []}});
+        pedidos.push({fields:{Orden: ++orden, 'Fecha Venta': fecha, Sucursal: s, 'Cliente Nombre': nombres[Math.floor(rnd()*nombres.length)], Total: pa + pl, Saldo: st === 'Entregado' ? 0 : pa + pl - an, Status: st, 'Costo Laboratorio': Math.round(pl * .35)}});
       }
     });
   }

@@ -3,97 +3,169 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ópticas Johny · Mostrador</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>Perfect Vision · Mostrador</title>
 <style>
   :root{
-    --piedra:#3A3630; --piedra-2:#2C2924; --dorado:#C9A227; --oxido:#B5651D;
-    --verde:#5A8577; --pergamino:#EDE0C0; --texto:#EDE0C0; --tenue:#B9AD92;
-    --error:#E0664F; --ok:#7FB59F;
+    --page:#f9f9f7; --surface:#fcfcfb; --field:#fff; --ink:#0b0b0b; --ink2:#52514e; --muted:#6f6d67; --grid:#e1e0d9; --axis:#c3c2b7;
+    --good:#006300; --good-bg:#e5f3e8; --bad:#b42323; --bad-bg:#fbe9e7; --warn:#a06a00; --warn-bg:#fff4d6; --accent:#2a78d6; --accent-ink:#fff;
   }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --page:#0d0d0d; --surface:#1a1a19; --field:#232322; --ink:#fff; --ink2:#c3c2b7; --muted:#a09f97; --grid:#2c2c2a; --axis:#383835;
+    --good:#3ecf5a; --good-bg:#12301b; --bad:#ff7a7a; --bad-bg:#3a1717; --warn:#f3d58a; --warn-bg:#3a2f0d; --accent:#3987e5; color-scheme:dark}}
+  :root{--ok:var(--good);--error:var(--bad);--tenue:var(--ink2)}
   *{box-sizing:border-box}
-  body{margin:0;background:var(--piedra-2);color:var(--texto);font-family:'Space Mono',monospace;font-size:16px}
-  header{background:var(--piedra);padding:16px;border-bottom:2px solid var(--dorado)}
-  header h1{font-family:'Kalam',cursive;margin:0;font-size:26px;color:var(--pergamino)}
-  header small{color:var(--tenue)}
-  .wrap{max-width:640px;margin:0 auto;padding:16px}
-  .tabs{display:flex;gap:8px;margin-bottom:16px}
-  .tab{flex:1;padding:12px 8px;background:var(--piedra);color:var(--tenue);border:1px solid #4a453d;border-radius:6px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer}
-  .tab.on{background:var(--dorado);color:var(--piedra-2);border-color:var(--dorado)}
+  body{margin:0;background:var(--page);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{max-width:640px;margin:0 auto;padding:20px 16px 8px}
+  header h1{font:700 22px/1.2 system-ui,sans-serif;margin:0;letter-spacing:-.01em}
+  header small{color:var(--ink2);font-size:14px}
+  .wrap{max-width:640px;margin:0 auto;padding:8px 16px 16px}
+  label{display:block;margin:14px 0 6px;color:var(--ink2);font-size:13px;font-weight:600}
+  input,select,textarea{width:100%;padding:11px 12px;background:var(--field);color:var(--ink);border:1px solid var(--axis);border-radius:10px;font:inherit;font-size:16px}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 20%,transparent)}
+  input[readonly]{background:transparent;color:var(--ink2)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .ayuda,.hint{color:var(--muted);font-size:13px;line-height:1.5;margin:6px 0 0}
+  .card,.hoja{background:var(--surface);border:1px solid var(--grid);border-radius:10px;padding:2px 14px 16px;margin-bottom:12px}
+  .hoja-t{font:700 12px/1 system-ui;letter-spacing:.09em;text-transform:uppercase;color:var(--ink2);margin:14px 0 2px;padding-bottom:8px;border-bottom:1px solid var(--grid)}
+  button.main{width:100%;margin-top:16px;padding:14px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;font:inherit;font-weight:600;font-size:16px;cursor:pointer}
+  button.main:disabled{opacity:.5}
+  button.main.sec{background:transparent;color:var(--accent);border:1px solid var(--accent);margin-top:10px}
+  .msg{margin-top:14px;padding:12px 14px;border-radius:10px;display:none;line-height:1.5;font-size:15px}
+  .msg.ok{display:block;background:var(--good-bg);color:var(--ink)}
+  .msg.err{display:block;background:var(--bad-bg);color:var(--ink)}
+  .msg b{color:var(--accent)}
+  .big{font:700 34px/1.2 system-ui;color:var(--accent);font-variant-numeric:tabular-nums}
+  .foto{margin-top:4px;border:1.5px dashed var(--axis);border-radius:10px;background:var(--field);padding:24px 16px;text-align:center;cursor:pointer;color:var(--ink2)}
+  .foto.has{border:1.5px solid var(--accent);color:var(--good)}
+  .foto .ico{font-size:28px;display:block;margin-bottom:6px}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px}
+  a{color:var(--accent)}
+  .seg{display:flex;border:1px solid var(--axis);border-radius:10px;overflow:hidden;margin-bottom:14px;background:var(--surface)}
+  .tab{flex:1;padding:11px 6px;background:transparent;color:var(--ink2);border:0;font:inherit;font-size:15px;cursor:pointer;min-height:44px}
+  .tab+.tab{border-left:1px solid var(--axis)}
+  .tab.on{background:var(--ink);color:var(--page);font-weight:600}
   section{display:none}
   section.on{display:block}
-  label{display:block;margin:14px 0 6px;color:var(--tenue);font-size:14px}
-  input,select,textarea{width:100%;padding:12px;background:var(--piedra);color:var(--texto);border:1px solid #5a544a;border-radius:4px;font-family:inherit;font-size:16px}
-  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--dorado)}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  button.main{width:100%;margin-top:20px;padding:15px;background:var(--dorado);color:var(--piedra-2);border:0;border-radius:6px;font-family:inherit;font-weight:700;font-size:16px;cursor:pointer}
-  button.main:disabled{opacity:.5}
-  .msg{margin-top:16px;padding:14px;border-radius:6px;display:none;line-height:1.5}
-  .msg.ok{display:block;background:rgba(127,181,159,.15);border:1px solid var(--ok)}
-  .msg.err{display:block;background:rgba(224,102,79,.15);border:1px solid var(--error)}
-  .big{font-family:'Kalam',cursive;font-size:34px;color:var(--dorado)}
-  .card{background:var(--piedra);border:1px solid #4a453d;border-radius:6px;padding:14px;margin-top:12px}
+  .row.r3{grid-template-columns:1fr 1fr 1fr}
+  .rx{margin-top:16px;display:grid;gap:6px}
+  .rx-h,.rx-r{display:grid;grid-template-columns:34px 1.4fr 1fr 1fr;gap:6px;align-items:center}
+  .rx-h.f,.rx-r.f{grid-template-columns:34px 1.4fr 40px 1fr}
+  .rx-h span{color:var(--muted);font-size:12px;text-align:center}
+  .rx-r b{color:var(--ink2);font-size:13px;text-align:center}
+  .rx-r input{padding:10px 6px;text-align:center}
+  .rx.final{padding-top:12px;border-top:1px solid var(--grid)}
+  .it{background:var(--surface);border:1px solid var(--grid);border-radius:10px;padding:12px;margin:10px 0 0;display:flex;gap:10px;align-items:flex-start;font-weight:400;color:var(--ink)}
+  .it input{width:22px;height:22px;margin-top:2px;flex:none}
+  .it .d{flex:1;font-size:14px;line-height:1.5}
+  .it .d small{color:var(--muted);display:block}
+  .it.mal{border-color:var(--bad)}
+  .it.raro{border-color:var(--warn)}
+  .resumen{background:var(--surface);border:1px solid var(--grid);border-radius:10px;padding:12px;margin-top:14px;font-size:14px;line-height:1.6}
+  .card{padding:14px;margin-top:12px}
   .card .t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-  .card .o{font-family:'Kalam',cursive;font-size:24px;color:var(--dorado)}
-  .pill{font-size:12px;padding:3px 8px;border-radius:12px;background:#4a453d}
-  .pill.lab{background:var(--oxido);color:#fff}
-  .pill.listo{background:var(--verde);color:#fff}
-  .card p{margin:6px 0;color:var(--tenue);font-size:14px}
-  .card button{margin-top:10px;width:100%;padding:12px;border:0;border-radius:6px;font-family:inherit;font-weight:700;font-size:15px;cursor:pointer}
-  .b-llego{background:var(--verde);color:#fff}
-  .b-entregado{background:#5a544a;color:var(--texto)}
+  .card .o{font:700 22px/1.2 system-ui;font-variant-numeric:tabular-nums}
+  .pill{font-size:12px;padding:3px 9px;border-radius:12px;background:var(--grid);color:var(--ink)}
+  .pill.lab{background:var(--warn-bg);color:var(--warn)}
+  .pill.listo{background:var(--good-bg);color:var(--good)}
+  .card p{margin:6px 0;color:var(--ink2);font-size:14px}
+  .card button{margin-top:10px;width:100%;padding:12px;border:0;border-radius:10px;font:inherit;font-weight:600;font-size:15px;cursor:pointer}
+  .b-llego{background:var(--good);color:#fff}
+  .b-entregado{background:transparent;color:var(--accent);border:1px solid var(--accent)!important}
+  .b-confirmar{background:var(--accent);color:#fff}
+  .cobro{background:var(--page);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:14px}
+  .cobro .big{font-size:28px}
   .search{display:flex;gap:8px}
-  .search button{padding:0 18px;background:var(--dorado);border:0;border-radius:4px;font-family:inherit;font-weight:700;cursor:pointer}
-  footer{text-align:center;color:var(--tenue);font-size:12px;padding:24px 16px}
-  a{color:var(--dorado)}
+  .search button{padding:0 18px;background:var(--accent);color:#fff;border:0;border-radius:10px;font:inherit;font-weight:600;cursor:pointer}
 </style>
 </head>
 <body>
 <header>
-  <h1>Ópticas Johny</h1>
+  <h1>Perfect Vision</h1>
   <small>Mostrador · <span id="suc-label"></span></small>
 </header>
 <div class="wrap">
-  <div class="tabs">
+  <div class="seg" role="tablist">
     <button class="tab on" data-s="venta">Nueva venta</button>
-    <button class="tab" data-s="pedidos">Lentes llegaron</button>
+    <button class="tab" data-s="contra">Llegó lab</button>
+    <button class="tab" data-s="pedidos">Entregar</button>
   </div>
 
-  <!-- VENTA -->
+  <!-- VENTA: hoja "Historia Clínica" -->
   <section id="venta" class="on">
-    <label>Sucursal *</label>
-    <select id="sucursal">
-      <option>Sucursal 1</option><option>Sucursal 2</option><option>Sucursal 3</option><option>Sucursal 4</option>
-    </select>
-    <label>Armazón (código, modelo o marca) *</label>
-    <input id="busqueda" placeholder="Ej. 42-21 o LEON">
-    <label>Nombre del cliente *</label><input id="nombre_cliente">
-    <div class="row">
-      <div><label>Email del cliente *</label><input id="email" type="email" inputmode="email"></div>
-      <div><label>WhatsApp</label><input id="whatsapp" type="tel" inputmode="tel" placeholder="10 dígitos"></div>
+    <div class="hoja">
+      <div class="hoja-t">Historia clínica</div>
+      <div class="row">
+        <div><label>Sucursal *</label>
+          <select id="sucursal"><option>Sucursal 1</option><option>Sucursal 2</option><option>Sucursal 3</option><option>Sucursal 4</option></select></div>
+        <div><label>Fecha</label><input id="fecha_hoy" readonly></div>
+      </div>
+      <label>Nombre *</label><input id="nombre_cliente" autocomplete="off">
+      <div class="row r3">
+        <div><label>Edad</label><input id="edad" inputmode="numeric"></div>
+        <div style="grid-column:span 2"><label>Tel.</label><input id="whatsapp" type="tel" inputmode="tel" placeholder="10 dígitos"></div>
+      </div>
+      <label>Direc.</label><input id="direccion">
+      <label>CCL</label><input id="ccl">
+      <label>Síntomas</label><input id="sintomas">
+      <label>Salud en general</label><input id="salud">
+
+      <div class="rx">
+        <div class="rx-h"><span></span><span>RX anterior</span><span>A.V.</span><span>ADD</span></div>
+        <div class="rx-r"><b>OD</b><input id="rx_ant_od" aria-label="RX anterior OD"><input id="av_od" aria-label="AV OD"><input id="add_ant_od" aria-label="ADD anterior OD"></div>
+        <div class="rx-r"><b>OI</b><input id="rx_ant_oi" aria-label="RX anterior OI"><input id="av_oi" aria-label="AV OI"><input id="add_ant_oi" aria-label="ADD anterior OI"></div>
+      </div>
+      <div class="rx final">
+        <div class="rx-h f"><span></span><span>RX final</span><span></span><span>ADD</span></div>
+        <div class="rx-r f"><b>OD</b><input id="rx_fin_od" aria-label="RX final OD"><b>ADD</b><input id="rx_fin_add" aria-label="RX final ADD"></div>
+        <div class="rx-r f"><b>OI</b><input id="rx_fin_oi" aria-label="RX final OI"><span></span><span></span></div>
+      </div>
     </div>
-    <label>Tipo de lente</label>
-    <input id="tipo_lente" list="tipos" placeholder="Monofocal, progresivo…">
-    <datalist id="tipos"><option>Monofocal</option><option>Bifocal</option><option>Progresivo</option><option>Monofocal antirreflejante</option><option>Progresivo antirreflejante</option></datalist>
-    <div class="row">
-      <div><label>Costo venta $ *</label><input id="costo_venta" type="number" inputmode="decimal" min="0" placeholder="Armazón + lentes"></div>
-      <div><label>Anticipo $</label><input id="anticipo" type="number" inputmode="decimal" min="0"></div>
+
+    <div class="hoja">
+      <div class="hoja-t">Venta</div>
+      <label>Armazón de la tienda (código, modelo o marca)</label>
+      <input id="busqueda" placeholder="Ej. 42-21 o LEON · vacío si trae el suyo">
+      <label>Tipo de lente</label>
+      <input id="tipo_lente" list="tipos" placeholder="Monofocal, bifocal, progresivo…">
+      <datalist id="tipos"><option>Monofocal</option><option>Bifocal</option><option>Progresivo</option></datalist>
+      <div class="row">
+        <div><label>Costo venta $ *</label><input id="costo_venta" type="number" inputmode="decimal" min="0" placeholder="Total"></div>
+        <div><label>Anticipo $</label><input id="anticipo" type="number" inputmode="decimal" min="0"></div>
+      </div>
+      <label>Email del cliente</label><input id="email" type="email" inputmode="email" placeholder="Para avisarle cuando lleguen">
+      <label>Notas</label><textarea id="notas" rows="2"></textarea>
     </div>
-    <label>Notas</label><textarea id="notas" rows="2"></textarea>
-    <button class="main" id="btn-venta">REGISTRAR VENTA</button>
+    <button class="main" id="btn-venta">Registrar venta</button>
     <div class="msg" id="msg-venta"></div>
+    <button class="main sec" id="btn-nueva" style="display:none">Nueva venta (limpiar hoja)</button>
   </section>
 
-  <!-- PEDIDOS -->
+  <!-- ENTREGAR -->
   <section id="pedidos">
+    <p class="ayuda">Busca al cliente cuando venga por sus lentes. Cobra lo que resta y confirma la entrega. Aquí también puedes marcar a mano que ya llegaron.</p>
     <label>Número de orden o nombre del cliente</label>
     <div class="search">
       <input id="q" placeholder="Ej. 171 o Chuchito">
-      <button id="btn-buscar">BUSCAR</button>
+      <button id="btn-buscar">Buscar</button>
     </div>
     <div class="msg" id="msg-pedidos"></div>
     <div id="lista"></div>
+  </section>
+
+  <!-- CONTRA LABORATORIO -->
+  <section id="contra">
+    <p class="ayuda">Cuando llegue el laboratorio, tómale foto a su nota. El sistema la compara contra los pedidos pendientes. Tú revisas y confirmas.</p>
+    <label>Sucursal *</label>
+    <select id="contra-suc">
+      <option>Sucursal 1</option><option>Sucursal 2</option><option>Sucursal 3</option><option>Sucursal 4</option>
+    </select>
+    <label>Foto de la nota del laboratorio *</label>
+    <div class="foto" id="contra-zona"><span class="ico">📷</span><span id="contra-zona-txt">Toca para tomar la foto de la nota</span></div>
+    <img id="contra-prev" alt="Nota del laboratorio" style="display:none;width:100%;max-height:260px;object-fit:contain;margin-top:8px;border-radius:10px;background:#000">
+    <input type="file" id="contra-foto" accept="image/*" capture="environment" hidden>
+    <button class="main" id="btn-contra">Revisar nota</button>
+    <div class="msg" id="msg-contra"></div>
+    <div id="contra-res"></div>
   </section>
 </div>
 <footer>Hecho por Sótano Bajo · <a href="index.html">Registrar armazón por foto</a></footer>
@@ -106,11 +178,11 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const limpio = s => String(s ?? '').replace(/["\\]/g, "'").replace(/\s+/g, ' ').trim();
 const money = n => '$' + Number(n || 0).toLocaleString('es-MX');
+const hoy = () => new Date().toLocaleDateString('en-CA', {timeZone:'America/Mexico_City'});
+const fechaMx = iso => iso ? iso.split('-').reverse().join('/') : '';
 
-// recordar sucursal y vendedor en este celular
-try {
-  if (localStorage.suc) $('sucursal').value = localStorage.suc;
-} catch(e) {}
+$('fecha_hoy').value = fechaMx(hoy());
+try { if (localStorage.suc) $('sucursal').value = localStorage.suc; } catch(e) {}
 const updSuc = () => $('suc-label').textContent = $('sucursal').value;
 updSuc();
 $('sucursal').onchange = () => { updSuc(); try{localStorage.suc=$('sucursal').value}catch(e){} };
@@ -121,7 +193,6 @@ document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
 });
 
 function show(id, cls, html){ const m=$(id); m.className='msg '+cls; m.innerHTML=html; }
-
 async function post(url, payload){
   const r = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
   if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -129,34 +200,60 @@ async function post(url, payload){
 }
 
 // ---------- VENTA ----------
-$('btn-venta').onclick = async () => {
-  const p = {
-    sucursal: $('sucursal').value,
-    busqueda: limpio($('busqueda').value), nombre_cliente: limpio($('nombre_cliente').value),
-    email: limpio($('email').value), whatsapp: $('whatsapp').value.replace(/\D/g,''),
-    tipo_lente: limpio($('tipo_lente').value),
-    costo_venta: Number($('costo_venta').value || 0), anticipo: Number($('anticipo').value || 0),
-    notas: limpio($('notas').value)
-  };
-  const falta = [];
-  if (!p.busqueda) falta.push('armazón');
-  if (!p.costo_venta) falta.push('costo de la venta');
-  if (!p.nombre_cliente) falta.push('nombre del cliente');
-  if (!/^\S+@\S+\.\S+$/.test(p.email)) falta.push('email válido');
-  if (falta.length) return show('msg-venta','err','Falta: ' + falta.join(', '));
-  if (p.anticipo > p.costo_venta) return show('msg-venta','err','El anticipo no puede ser mayor que el costo de la venta.');
+// id del campo en la app -> columna en Airtable
+const CAMPOS = {
+  nombre_cliente:'Cliente Nombre', edad:'Edad', whatsapp:'Cliente WhatsApp', direccion:'Dirección', ccl:'CCL',
+  sintomas:'Síntomas', salud:'Salud en General',
+  rx_ant_od:'RX Anterior OD', av_od:'AV OD', add_ant_od:'ADD Anterior OD',
+  rx_ant_oi:'RX Anterior OI', av_oi:'AV OI', add_ant_oi:'ADD Anterior OI',
+  rx_fin_od:'RX Final OD', rx_fin_oi:'RX Final OI', rx_fin_add:'RX Final ADD',
+  tipo_lente:'Tipo de Lente', email:'Cliente Email', notas:'Notas'
+};
+const NUMEROS = {costo_venta:'Costo Venta', anticipo:'Anticipo'};
+const val = id => $(id).value.replace(/\s+/g, ' ').trim();
 
-  const b = $('btn-venta'); b.disabled = true; b.textContent = 'REGISTRANDO…';
+$('btn-venta').onclick = async () => {
+  const f = {Sucursal: $('sucursal').value};
+  for (const [id, col] of Object.entries(CAMPOS)) { const v = val(id); if (v) f[col] = v; }
+  if (f['Cliente WhatsApp']) f['Cliente WhatsApp'] = f['Cliente WhatsApp'].replace(/\D/g, '');
+  for (const [id, col] of Object.entries(NUMEROS)) { const v = Number($(id).value || 0); if (v) f[col] = v; }
+  const grad = [['OD', f['RX Final OD']], ['OI', f['RX Final OI']], ['ADD', f['RX Final ADD']]]
+    .filter(x => x[1]).map(x => x[0] + ' ' + x[1]).join(' / ');
+  if (grad) f['Graduación'] = grad;
+
+  const falta = [];
+  if (!f['Cliente Nombre']) falta.push('nombre');
+  if (!f['Costo Venta']) falta.push('costo de la venta');
+  if (f['Cliente Email'] && !/^\S+@\S+\.\S+$/.test(f['Cliente Email'])) falta.push('email válido (o déjalo vacío)');
+  if (falta.length) return show('msg-venta','err','Falta: ' + falta.join(', '));
+  if ((f.Anticipo || 0) > f['Costo Venta']) return show('msg-venta','err','El anticipo no puede ser mayor que el costo de la venta.');
+
+  const payload = {
+    sucursal: f.Sucursal,
+    busqueda: val('busqueda').replace(/["'\\]/g, ''),
+    nombre_cliente: limpio(f['Cliente Nombre']),
+    campos: JSON.stringify(f).slice(1, -1)   // Make lo inserta tal cual dentro de "fields"
+  };
+  const b = $('btn-venta'); b.disabled = true; b.textContent = 'Registrando…';
   try {
-    const d = await post(WEBHOOK_VENTA, p);
+    const d = await post(WEBHOOK_VENTA, payload);
     if (!d.success) { show('msg-venta','err', esc(d.mensaje || 'No se pudo registrar.')); return; }
     show('msg-venta','ok',
-      `Venta registrada. Dale al cliente su número de orden:<div class="big">#${esc(d.orden)}</div>` +
-      `${esc(d.armazon)} · Total ${money(d.total)} · Resta ${money(d.saldo)}`);
-    ['busqueda','nombre_cliente','email','whatsapp','tipo_lente','costo_venta','anticipo','notas'].forEach(i => $(i).value='');
+      `Venta registrada. Anota este número en la hoja:<div class="big">#${esc(d.orden)}</div>` +
+      `${esc(d.armazon)} · Total ${money(d.total)} · Resta ${money(d.saldo)}` +
+      (f['Cliente Email'] ? '' : '<br><small>Sin email: cuando lleguen, avísale por teléfono.</small>'));
+    b.style.display = 'none';
+    $('btn-nueva').style.display = 'block';
   } catch(e) {
     show('msg-venta','err','No hay conexión con el sistema. Intenta de nuevo.');
-  } finally { b.disabled = false; b.textContent = 'REGISTRAR VENTA'; }
+  } finally { b.disabled = false; b.textContent = 'Registrar venta'; }
+};
+$('btn-nueva').onclick = () => {
+  document.querySelectorAll('#venta input:not([readonly]), #venta textarea').forEach(i => i.value = '');
+  $('fecha_hoy').value = fechaMx(hoy());
+  $('msg-venta').className = 'msg';
+  $('btn-venta').style.display = 'block'; $('btn-nueva').style.display = 'none';
+  window.scrollTo(0, 0);
 };
 
 // ---------- PEDIDOS ----------
@@ -179,7 +276,7 @@ async function buscar(){
         <p>${esc(f['Tipo de Lente'] || '')} · Vendido ${esc(f['Fecha Venta'] || '')} · Resta ${money(f.Saldo)}</p>
         ${st === 'En laboratorio'
           ? `<button class="b-llego" data-id="${r.id}" data-a="llego">YA LLEGARON · AVISAR AL CLIENTE</button>`
-          : `<button class="b-entregado" data-id="${r.id}" data-a="entregado">MARCAR COMO ENTREGADO</button>`}
+          : `<button class="b-entregado" data-id="${r.id}" data-a="cobrar" data-saldo="${Number(f.Saldo)||0}">COBRAR Y ENTREGAR</button>`}
       </div>`;
     }).join('');
   } catch(e) { show('msg-pedidos','err','No hay conexión con el sistema. Intenta de nuevo.'); }
@@ -189,25 +286,105 @@ $('q').onkeydown = e => { if (e.key === 'Enter') buscar(); };
 
 $('lista').onclick = async e => {
   const b = e.target.closest('button[data-a]'); if (!b) return;
+  const c = $('c-' + b.dataset.id);
+  if (b.dataset.a === 'cobrar') {           // paso 1: mostrar cuánto cobrar
+    const saldo = Number(b.dataset.saldo) || 0;
+    b.insertAdjacentHTML('beforebegin', `<div class="cobro">${saldo > 0 ? `Cobra al cliente:<div class="big">${money(saldo)}</div>` : 'Ya está pagado completo.'}
+      Al confirmar, el pedido queda <b>entregado y liquidado</b>.</div>`);
+    b.className = 'b-confirmar'; b.dataset.a = 'entregado';
+    b.textContent = saldo > 0 ? `YA PAGÓ ${money(saldo)} · ENTREGAR` : 'CONFIRMAR ENTREGA';
+    return;
+  }
   b.disabled = true; const txt = b.textContent; b.textContent = 'GUARDANDO…';
   try {
     const d = await post(WEBHOOK_PEDIDOS, {accion: b.dataset.a, id: b.dataset.id});
     if (!d.success) throw 0;
-    const c = $('c-' + b.dataset.id);
     if (b.dataset.a === 'llego') {
       c.querySelector('.pill').className = 'pill listo';
       c.querySelector('.pill').textContent = 'Listo para entregar';
-      b.className = 'b-entregado'; b.dataset.a = 'entregado'; b.textContent = 'MARCAR COMO ENTREGADO'; b.disabled = false;
+      b.className = 'b-entregado'; b.dataset.a = 'cobrar'; b.textContent = 'COBRAR Y ENTREGAR'; b.disabled = false;
       show('msg-pedidos','ok', (d.email || '').includes('@')
         ? `Listo. Se le avisó por correo a ${esc(d.cliente)} (${esc(d.email)}).`
         : `Listo. El pedido de ${esc(d.cliente)} quedó como listo para entregar. No tiene correo registrado, avísale por teléfono.`);
     } else {
-      c.remove(); show('msg-pedidos','ok','Pedido entregado.');
+      c.remove(); show('msg-pedidos','ok','✓ Entregado y liquidado.');
     }
   } catch(err) {
     b.disabled = false; b.textContent = txt;
     show('msg-pedidos','err','No se pudo guardar. Intenta de nuevo.');
   }
+};
+
+// ---------- CONTRA LABORATORIO ----------
+const WEBHOOK_CONTRA = 'https://hook.us2.make.com/3mhu1z252l7tkmt48i2yzfeqzwxqw9b2';
+try { if (localStorage.suc) $('contra-suc').value = localStorage.suc; } catch(e) {}
+$('contra-zona').onclick = () => $('contra-foto').click();
+$('contra-foto').onchange = () => {
+  const f = $('contra-foto').files[0]; if (!f) return;
+  $('contra-prev').src = URL.createObjectURL(f); $('contra-prev').style.display = 'block';
+  $('contra-zona').classList.add('has'); $('contra-zona-txt').textContent = '✓ Foto lista (toca para cambiarla)';
+};
+function comprimir(file, max = 1600){
+  return new Promise((ok, bad) => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if (Math.max(w,h) > max) { const k = max / Math.max(w,h); w = Math.round(w*k); h = Math.round(h*k); }
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      ok(c.toDataURL('image/jpeg', 0.8).split(',')[1]);
+    };
+    img.onerror = bad; img.src = URL.createObjectURL(file);
+  });
+}
+const ESTADO = {ok:['','✓ Cuadra'], cobro_de_mas:['mal','⚠ Cobró de más'], cobro_de_menos:['raro','Cobró de menos'], no_identificado:['raro','? No encontré el pedido']};
+
+$('btn-contra').onclick = async () => {
+  const f = $('contra-foto').files[0];
+  if (!f) return show('msg-contra','err','Falta la foto de la nota.');
+  const b = $('btn-contra'); b.disabled = true; b.textContent = 'Leyendo nota…';
+  $('contra-res').innerHTML = ''; show('msg-contra','ok','Leyendo la nota y comparando, tarda unos segundos…');
+  try {
+    const foto = await comprimir(f);
+    const d = await post(WEBHOOK_CONTRA, {sucursal: $('contra-suc').value, foto});
+    if (!d.success || !d.resultado) throw 0;
+    const r = d.resultado, items = r.items || [];
+    $('msg-contra').className = 'msg';
+    const dif = (Number(r.total_nota)||0) - (Number(r.total_esperado)||0);
+    let html = `<div class="resumen"><b>${esc(r.laboratorio || 'Laboratorio')}</b> ${r.folio ? '· folio ' + esc(r.folio) : ''}<br>
+      Total de la nota: <b>${money(r.total_nota)}</b> · Esperado: <b>${money(r.total_esperado)}</b>
+      ${Math.abs(dif) >= 1 ? `<br><span style="color:${dif > 0 ? 'var(--error)' : 'var(--ok)'}">Diferencia: ${money(dif)}</span>` : '<br><span style="color:var(--ok)">Los totales cuadran</span>'}
+      ${r.diferencias_texto ? `<br><small style="color:var(--tenue)">${esc(r.diferencias_texto)}</small>` : ''}</div>`;
+    html += items.map((it, i) => {
+      const [cls, txt] = ESTADO[it.estado] || ['raro', esc(it.estado)];
+      const puede = !!it.pedido_id;
+      return `<label class="it ${cls}">
+        <input type="checkbox" data-i="${i}" ${puede ? 'checked' : 'disabled'}>
+        <span class="d"><b>${puede ? '#' + esc(it.orden) + ' · ' + esc(it.cliente) : esc(it.referencia_en_nota || it.descripcion)}</b>
+        <small>${esc(it.descripcion)}</small>
+        <small>Cobrado ${money(it.precio_cobrado)} · esperado ${money(it.precio_esperado)} · ${txt}</small>
+        ${it.comentario ? `<small>${esc(it.comentario)}</small>` : ''}</span></label>`;
+    }).join('');
+    html += items.some(it => it.pedido_id)
+      ? `<button class="main" id="btn-confirmar">CONFIRMAR LLEGADA Y AVISAR A CLIENTES</button>`
+      : `<div class="msg err" style="display:block">No pude relacionar ningún renglón con un pedido pendiente de esta sucursal. Revisa que la sucursal sea la correcta o márcalos a mano en "Entregar".</div>`;
+    $('contra-res').innerHTML = html;
+    const btn = $('btn-confirmar');
+    if (btn) btn.onclick = async () => {
+      const sel = [...document.querySelectorAll('#contra-res input[type=checkbox]:checked')].map(c => items[+c.dataset.i]);
+      if (!sel.length) return;
+      btn.disabled = true; let ok = 0, fallo = [];
+      for (const it of sel) {
+        btn.textContent = `GUARDANDO ${ok + fallo.length + 1} DE ${sel.length}…`;
+        try { const x = await post(WEBHOOK_PEDIDOS, {accion:'llego', id: it.pedido_id, costo_cobrado: Number(it.precio_cobrado) || 0}); if (x.success) ok++; else fallo.push(it.orden); }
+        catch(e) { fallo.push(it.orden); }
+      }
+      btn.textContent = 'LISTO';
+      show('msg-contra', fallo.length ? 'err' : 'ok', `${ok} pedidos marcados como llegados; se avisó por correo a los clientes que tienen correo registrado.` + (fallo.length ? ` No se pudieron guardar: #${fallo.join(', #')}. Márcalos en "Entregar".` : ''));
+    };
+  } catch(e) {
+    show('msg-contra','err','No se pudo leer la nota. Intenta con una foto más clara y derecha, o márcalos a mano en "Entregar".');
+  } finally { b.disabled = false; b.textContent = 'Revisar nota'; }
 };
 </script>
 </body>

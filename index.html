@@ -3,45 +3,53 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ópticas Johny · Inventario</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>Perfect Vision · Inventario</title>
 <style>
   :root{
-    --piedra:#3A3630; --piedra-2:#2C2924; --dorado:#C9A227; --oxido:#B5651D;
-    --verde:#5A8577; --pergamino:#EDE0C0; --texto:#EDE0C0; --tenue:#B9AD92;
-    --error:#E0664F; --ok:#7FB59F;
+    --page:#f9f9f7; --surface:#fcfcfb; --field:#fff; --ink:#0b0b0b; --ink2:#52514e; --muted:#6f6d67; --grid:#e1e0d9; --axis:#c3c2b7;
+    --good:#006300; --good-bg:#e5f3e8; --bad:#b42323; --bad-bg:#fbe9e7; --warn:#a06a00; --warn-bg:#fff4d6; --accent:#2a78d6; --accent-ink:#fff;
   }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --page:#0d0d0d; --surface:#1a1a19; --field:#232322; --ink:#fff; --ink2:#c3c2b7; --muted:#a09f97; --grid:#2c2c2a; --axis:#383835;
+    --good:#3ecf5a; --good-bg:#12301b; --bad:#ff7a7a; --bad-bg:#3a1717; --warn:#f3d58a; --warn-bg:#3a2f0d; --accent:#3987e5; color-scheme:dark}}
+  :root{--ok:var(--good);--error:var(--bad);--tenue:var(--ink2)}
   *{box-sizing:border-box}
-  body{margin:0;background:var(--piedra-2);color:var(--texto);font-family:'Space Mono',monospace;font-size:16px}
-  header{background:var(--piedra);padding:16px;border-bottom:2px solid var(--dorado)}
-  header h1{font-family:'Kalam',cursive;margin:0;font-size:26px;color:var(--pergamino)}
-  header small{color:var(--tenue)}
-  .wrap{max-width:640px;margin:0 auto;padding:16px}
-  label{display:block;margin:14px 0 6px;color:var(--tenue);font-size:14px}
-  input,select{width:100%;padding:12px;background:var(--piedra);color:var(--texto);border:1px solid #5a544a;border-radius:4px;font-family:inherit;font-size:16px}
-  input:focus,select:focus{outline:none;border-color:var(--dorado)}
+  body{margin:0;background:var(--page);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{max-width:640px;margin:0 auto;padding:20px 16px 8px}
+  header h1{font:700 22px/1.2 system-ui,sans-serif;margin:0;letter-spacing:-.01em}
+  header small{color:var(--ink2);font-size:14px}
+  .wrap{max-width:640px;margin:0 auto;padding:8px 16px 16px}
+  label{display:block;margin:14px 0 6px;color:var(--ink2);font-size:13px;font-weight:600}
+  input,select,textarea{width:100%;padding:11px 12px;background:var(--field);color:var(--ink);border:1px solid var(--axis);border-radius:10px;font:inherit;font-size:16px}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 20%,transparent)}
+  input[readonly]{background:transparent;color:var(--ink2)}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .foto{margin-top:4px;border:1.5px dashed #5a544a;border-radius:6px;background:var(--piedra);padding:26px 16px;text-align:center;cursor:pointer;color:var(--tenue)}
-  .foto.has{border:1.5px solid var(--dorado);color:var(--ok)}
-  .foto .ico{font-size:28px;display:block;margin-bottom:6px}
-  #preview{width:100%;max-height:200px;object-fit:contain;border-radius:6px;margin-top:10px;display:none;background:#000}
-  .hint{color:var(--tenue);font-size:13px;margin-top:14px;line-height:1.5}
-  button.main{width:100%;margin-top:18px;padding:15px;background:var(--dorado);color:var(--piedra-2);border:0;border-radius:6px;font-family:inherit;font-weight:700;font-size:16px;cursor:pointer}
+  .ayuda,.hint{color:var(--muted);font-size:13px;line-height:1.5;margin:6px 0 0}
+  .card,.hoja{background:var(--surface);border:1px solid var(--grid);border-radius:10px;padding:2px 14px 16px;margin-bottom:12px}
+  .hoja-t{font:700 12px/1 system-ui;letter-spacing:.09em;text-transform:uppercase;color:var(--ink2);margin:14px 0 2px;padding-bottom:8px;border-bottom:1px solid var(--grid)}
+  button.main{width:100%;margin-top:16px;padding:14px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;font:inherit;font-weight:600;font-size:16px;cursor:pointer}
   button.main:disabled{opacity:.5}
-  .msg{margin-top:16px;padding:14px;border-radius:6px;display:none;line-height:1.6}
-  .msg.ok{display:block;background:rgba(127,181,159,.15);border:1px solid var(--ok)}
-  .msg.err{display:block;background:rgba(224,102,79,.15);border:1px solid var(--error)}
-  .msg b{color:var(--dorado)}
-  footer{text-align:center;color:var(--tenue);font-size:12px;padding:24px 16px}
+  button.main.sec{background:transparent;color:var(--accent);border:1px solid var(--accent);margin-top:10px}
+  .msg{margin-top:14px;padding:12px 14px;border-radius:10px;display:none;line-height:1.5;font-size:15px}
+  .msg.ok{display:block;background:var(--good-bg);color:var(--ink)}
+  .msg.err{display:block;background:var(--bad-bg);color:var(--ink)}
+  .msg b{color:var(--accent)}
+  .big{font:700 34px/1.2 system-ui;color:var(--accent);font-variant-numeric:tabular-nums}
+  .foto{margin-top:4px;border:1.5px dashed var(--axis);border-radius:10px;background:var(--field);padding:24px 16px;text-align:center;cursor:pointer;color:var(--ink2)}
+  .foto.has{border:1.5px solid var(--accent);color:var(--good)}
+  .foto .ico{font-size:28px;display:block;margin-bottom:6px}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:24px 16px}
+  a{color:var(--accent)}
+  #preview{width:100%;max-height:220px;object-fit:contain;border-radius:10px;margin-top:10px;display:none;background:#000}
 </style>
 </head>
 <body>
 <header>
-  <h1>Ópticas Johny</h1>
+  <h1>Perfect Vision</h1>
   <small>Inventario · entrada de armazones · <span id="suc-label"></span></small>
 </header>
 <div class="wrap">
+  <div class="card">
   <label>Sucursal *</label>
   <select id="sucursal">
     <option>Sucursal 1</option><option>Sucursal 2</option><option>Sucursal 3</option><option>Sucursal 4</option>
@@ -55,8 +63,9 @@
   <label>Precio de venta ($) *</label><input id="precio" type="number" inputmode="decimal" min="0">
   <label>Notas</label><input id="notas" placeholder="Color, detalle…">
 
+  </div>
   <p class="hint">La marca, el modelo y las medidas se leen solos desde la foto.</p>
-  <button class="main" id="btn">REGISTRAR ARMAZÓN</button>
+  <button class="main" id="btn">Registrar armazón</button>
   <div class="msg" id="msg"></div>
 </div>
 <footer>Hecho por Sótano Bajo</footer>
@@ -104,7 +113,7 @@ $('btn').onclick = async () => {
   if (!precio) falta.push('precio de venta');
   if (falta.length) return show('err', 'Falta: ' + falta.join(', '));
 
-  const b = $('btn'); b.disabled = true; b.textContent = 'LEYENDO FOTO…';
+  const b = $('btn'); b.disabled = true; b.textContent = 'Leyendo foto…';
   show('ok', 'Leyendo la foto, tarda unos segundos…');
   try {
     const foto = await comprimir(f);
@@ -120,7 +129,7 @@ $('btn').onclick = async () => {
     ['precio','notas'].forEach(i => $(i).value = '');
   } catch(e) {
     show('err', 'No se pudo registrar. Revisa la conexión e intenta de nuevo.');
-  } finally { b.disabled = false; b.textContent = 'REGISTRAR ARMAZÓN'; }
+  } finally { b.disabled = false; b.textContent = 'Registrar armazón'; }
 };
 </script>
 </body>
