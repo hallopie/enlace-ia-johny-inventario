@@ -125,6 +125,9 @@
       <div class="hoja-t">Venta</div>
       <label>Armazón de la tienda (código, modelo o marca)</label>
       <input id="busqueda" placeholder="Ej. 42-21 o LEON · vacío si trae el suyo">
+      <label>Laboratorio al que se manda</label>
+      <input id="laboratorio" list="labs" placeholder="Nombre del laboratorio">
+      <datalist id="labs"></datalist>
       <label>Tipo de lente</label>
       <input id="tipo_lente" list="tipos" placeholder="Monofocal, bifocal, progresivo…">
       <datalist id="tipos"><option>Monofocal</option><option>Bifocal</option><option>Progresivo</option></datalist>
@@ -183,6 +186,7 @@ const fechaMx = iso => iso ? iso.split('-').reverse().join('/') : '';
 
 $('fecha_hoy').value = fechaMx(hoy());
 try { if (localStorage.suc) $('sucursal').value = localStorage.suc; } catch(e) {}
+try { $('labs').innerHTML = JSON.parse(localStorage.labs || '[]').map(l => `<option>${esc(l)}</option>`).join(''); } catch(e) {}
 const updSuc = () => $('suc-label').textContent = $('sucursal').value;
 updSuc();
 $('sucursal').onchange = () => { updSuc(); try{localStorage.suc=$('sucursal').value}catch(e){} };
@@ -207,7 +211,7 @@ const CAMPOS = {
   rx_ant_od:'RX Anterior OD', av_od:'AV OD', add_ant_od:'ADD Anterior OD',
   rx_ant_oi:'RX Anterior OI', av_oi:'AV OI', add_ant_oi:'ADD Anterior OI',
   rx_fin_od:'RX Final OD', rx_fin_oi:'RX Final OI', rx_fin_add:'RX Final ADD',
-  tipo_lente:'Tipo de Lente', email:'Cliente Email', notas:'Notas'
+  laboratorio:'Laboratorio', tipo_lente:'Tipo de Lente', email:'Cliente Email', notas:'Notas'
 };
 const NUMEROS = {costo_venta:'Costo Venta', anticipo:'Anticipo'};
 const val = id => $(id).value.replace(/\s+/g, ' ').trim();
@@ -228,6 +232,13 @@ $('btn-venta').onclick = async () => {
   if (falta.length) return show('msg-venta','err','Falta: ' + falta.join(', '));
   if ((f.Anticipo || 0) > f['Costo Venta']) return show('msg-venta','err','El anticipo no puede ser mayor que el costo de la venta.');
 
+  try {
+    if (f.Laboratorio) {
+      const labs = JSON.parse(localStorage.labs || '[]').filter(l => l !== f.Laboratorio);
+      localStorage.labs = JSON.stringify([f.Laboratorio, ...labs].slice(0, 8));
+      $('labs').innerHTML = [f.Laboratorio, ...labs].slice(0, 8).map(l => `<option>${esc(l)}</option>`).join('');
+    }
+  } catch(e) {}
   const payload = {
     sucursal: f.Sucursal,
     busqueda: val('busqueda').replace(/["'\\]/g, ''),
