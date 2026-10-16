@@ -114,13 +114,15 @@
         <div class="rx-r"><b>OD</b><input id="rx_ant_od" aria-label="RX anterior OD"><input id="av_od" aria-label="AV OD"><input id="add_ant_od" aria-label="ADD anterior OD"></div>
         <div class="rx-r"><b>OI</b><input id="rx_ant_oi" aria-label="RX anterior OI"><input id="av_oi" aria-label="AV OI"><input id="add_ant_oi" aria-label="ADD anterior OI"></div>
       </div>
+      <label>Tipo de lente / tratamiento (RX anterior)</label>
+      <input id="tipo_ant" list="tipos" placeholder="El que traía el cliente">
       <div class="rx final">
         <div class="rx-h"><span></span><span>RX final</span><span>A.V.</span><span>ADD</span></div>
         <div class="rx-r"><b>OD</b><input id="rx_fin_od" aria-label="RX final OD"><input id="av_fin_od" aria-label="AV final OD"><input id="rx_fin_add" aria-label="RX final ADD"></div>
         <div class="rx-r"><b>OI</b><input id="rx_fin_oi" aria-label="RX final OI"><input id="av_fin_oi" aria-label="AV final OI"><span></span></div>
       </div>
-      <label>Tipo de lente / tratamiento</label>
-      <input id="tipo_lente" list="tipos" placeholder="Bifocal, progresivo, antirreflejante…">
+      <label>Tipo de lente / tratamiento (RX final)</label>
+      <input id="tipo_fin" list="tipos" placeholder="Bifocal, progresivo, antirreflejante…">
       <datalist id="tipos"><option>Monofocal</option><option>Bifocal</option><option>Progresivo</option><option>Monofocal antirreflejante</option><option>Bifocal antirreflejante</option><option>Progresivo antirreflejante</option><option>Blue ray</option><option>Fotocromático</option></datalist></div>
     </div>
 
@@ -128,6 +130,8 @@
       <div class="hoja-t">Venta</div>
       <label>Armazón de la tienda (código, modelo o marca)</label>
       <input id="busqueda" placeholder="Ej. 42-21 o LEON · vacío si trae el suyo">
+      <label>Tipo de lente / tratamiento (venta)</label>
+      <input id="tipo_lente" list="tipos" placeholder="Lo que se le vende al cliente">
       <label>Laboratorio al que se manda</label>
       <input id="laboratorio" list="labs" placeholder="Nombre del laboratorio">
       <datalist id="labs"></datalist>
@@ -212,7 +216,7 @@ const CAMPOS = {
   rx_ant_od:'RX Anterior OD', av_od:'AV OD', add_ant_od:'ADD Anterior OD',
   rx_ant_oi:'RX Anterior OI', av_oi:'AV OI', add_ant_oi:'ADD Anterior OI',
   rx_fin_od:'RX Final OD', av_fin_od:'AV Final OD', rx_fin_oi:'RX Final OI', av_fin_oi:'AV Final OI', rx_fin_add:'RX Final ADD',
-  laboratorio:'Laboratorio', tipo_lente:'Tipo de Lente', email:'Cliente Email', notas:'Notas'
+  laboratorio:'Laboratorio', tipo_ant:'Tipo RX Anterior', tipo_fin:'Tipo RX Final', tipo_lente:'Tipo de Lente', email:'Cliente Email', notas:'Notas'
 };
 const NUMEROS = {costo_venta:'Costo Venta', anticipo:'Anticipo'};
 const val = id => $(id).value.replace(/\s+/g, ' ').trim();
@@ -222,7 +226,7 @@ $('btn-venta').onclick = async () => {
   for (const [id, col] of Object.entries(CAMPOS)) { const v = val(id); if (v) f[col] = v; }
   if (f['Cliente WhatsApp']) f['Cliente WhatsApp'] = f['Cliente WhatsApp'].replace(/\D/g, '');
   for (const [id, col] of Object.entries(NUMEROS)) { const v = Number($(id).value || 0); if (v) f[col] = v; }
-  const grad = [['OD', f['RX Final OD']], ['OI', f['RX Final OI']], ['ADD', f['RX Final ADD']], ['', f['Tipo de Lente']]]
+  const grad = [['OD', f['RX Final OD']], ['OI', f['RX Final OI']], ['ADD', f['RX Final ADD']], ['', f['Tipo RX Final'] || f['Tipo de Lente']]]
     .filter(x => x[1]).map(x => (x[0] ? x[0] + ' ' : '') + x[1]).join(' / ');
   if (grad) f['Graduación'] = grad;
 
