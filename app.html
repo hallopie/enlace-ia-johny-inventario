@@ -96,7 +96,7 @@
       <div class="hoja-t">Historia clínica</div>
       <div class="row">
         <div><label>Sucursal *</label>
-          <select id="sucursal"><option>Sucursal 1</option><option>Sucursal 2</option><option>Sucursal 3</option><option>Sucursal 4</option></select></div>
+          <select id="sucursal"><option>Perfect Vision Arcos</option><option>Perfect Vision 2</option><option>Perfect Vision 3</option><option>Perfect Vision 4</option></select></div>
         <div><label>Fecha</label><input id="fecha_hoy" readonly></div>
       </div>
       <label>Nombre *</label><input id="nombre_cliente" autocomplete="off">
@@ -105,7 +105,7 @@
         <div style="grid-column:span 2"><label>Tel.</label><input id="whatsapp" type="tel" inputmode="tel" placeholder="10 dígitos"></div>
       </div>
       <label>Direc.</label><input id="direccion">
-      <label>CCL</label><input id="ccl">
+      <label>Colonia</label><input id="ccl">
       <label>Síntomas</label><input id="sintomas">
       <label>Salud en general</label><input id="salud">
 
@@ -115,10 +115,13 @@
         <div class="rx-r"><b>OI</b><input id="rx_ant_oi" aria-label="RX anterior OI"><input id="av_oi" aria-label="AV OI"><input id="add_ant_oi" aria-label="ADD anterior OI"></div>
       </div>
       <div class="rx final">
-        <div class="rx-h f"><span></span><span>RX final</span><span></span><span>ADD</span></div>
-        <div class="rx-r f"><b>OD</b><input id="rx_fin_od" aria-label="RX final OD"><b>ADD</b><input id="rx_fin_add" aria-label="RX final ADD"></div>
-        <div class="rx-r f"><b>OI</b><input id="rx_fin_oi" aria-label="RX final OI"><span></span><span></span></div>
+        <div class="rx-h"><span></span><span>RX final</span><span>A.V.</span><span>ADD</span></div>
+        <div class="rx-r"><b>OD</b><input id="rx_fin_od" aria-label="RX final OD"><input id="av_fin_od" aria-label="AV final OD"><input id="rx_fin_add" aria-label="RX final ADD"></div>
+        <div class="rx-r"><b>OI</b><input id="rx_fin_oi" aria-label="RX final OI"><input id="av_fin_oi" aria-label="AV final OI"><span></span></div>
       </div>
+      <label>Tipo de lente / tratamiento</label>
+      <input id="tipo_lente" list="tipos" placeholder="Bifocal, progresivo, antirreflejante…">
+      <datalist id="tipos"><option>Monofocal</option><option>Bifocal</option><option>Progresivo</option><option>Monofocal antirreflejante</option><option>Bifocal antirreflejante</option><option>Progresivo antirreflejante</option><option>Blue ray</option><option>Fotocromático</option></datalist></div>
     </div>
 
     <div class="hoja">
@@ -128,9 +131,6 @@
       <label>Laboratorio al que se manda</label>
       <input id="laboratorio" list="labs" placeholder="Nombre del laboratorio">
       <datalist id="labs"></datalist>
-      <label>Tipo de lente</label>
-      <input id="tipo_lente" list="tipos" placeholder="Monofocal, bifocal, progresivo…">
-      <datalist id="tipos"><option>Monofocal</option><option>Bifocal</option><option>Progresivo</option></datalist>
       <div class="row">
         <div><label>Costo venta $ *</label><input id="costo_venta" type="number" inputmode="decimal" min="0" placeholder="Total"></div>
         <div><label>Anticipo $</label><input id="anticipo" type="number" inputmode="decimal" min="0"></div>
@@ -160,7 +160,7 @@
     <p class="ayuda">Cuando llegue el laboratorio, tómale foto a su nota. El sistema la compara contra los pedidos pendientes. Tú revisas y confirmas.</p>
     <label>Sucursal *</label>
     <select id="contra-suc">
-      <option>Sucursal 1</option><option>Sucursal 2</option><option>Sucursal 3</option><option>Sucursal 4</option>
+      <option>Perfect Vision Arcos</option><option>Perfect Vision 2</option><option>Perfect Vision 3</option><option>Perfect Vision 4</option>
     </select>
     <label>Foto de la nota del laboratorio *</label>
     <div class="foto" id="contra-zona"><span class="ico">📷</span><span id="contra-zona-txt">Toca para tomar la foto de la nota</span></div>
@@ -174,6 +174,7 @@
 <footer>Hecho por Sótano Bajo · <a href="index.html">Registrar armazón por foto</a></footer>
 
 <script>
+try { const M = {'Sucursal 1':'Perfect Vision Arcos','Sucursal 2':'Perfect Vision 2','Sucursal 3':'Perfect Vision 3','Sucursal 4':'Perfect Vision 4'}; if (M[localStorage.suc]) localStorage.suc = M[localStorage.suc]; } catch(e) {}
 const WEBHOOK_VENTA   = 'https://hook.us2.make.com/nk2yb86an7nkiawgb7b8n5cjxyrc2cys';
 const WEBHOOK_PEDIDOS = 'https://hook.us2.make.com/hr5oms5v47eobcl1pcign5xnkdwyrley';
 
@@ -206,11 +207,11 @@ async function post(url, payload){
 // ---------- VENTA ----------
 // id del campo en la app -> columna en Airtable
 const CAMPOS = {
-  nombre_cliente:'Cliente Nombre', edad:'Edad', whatsapp:'Cliente WhatsApp', direccion:'Dirección', ccl:'CCL',
+  nombre_cliente:'Cliente Nombre', edad:'Edad', whatsapp:'Cliente WhatsApp', direccion:'Dirección', ccl:'Colonia',
   sintomas:'Síntomas', salud:'Salud en General',
   rx_ant_od:'RX Anterior OD', av_od:'AV OD', add_ant_od:'ADD Anterior OD',
   rx_ant_oi:'RX Anterior OI', av_oi:'AV OI', add_ant_oi:'ADD Anterior OI',
-  rx_fin_od:'RX Final OD', rx_fin_oi:'RX Final OI', rx_fin_add:'RX Final ADD',
+  rx_fin_od:'RX Final OD', av_fin_od:'AV Final OD', rx_fin_oi:'RX Final OI', av_fin_oi:'AV Final OI', rx_fin_add:'RX Final ADD',
   laboratorio:'Laboratorio', tipo_lente:'Tipo de Lente', email:'Cliente Email', notas:'Notas'
 };
 const NUMEROS = {costo_venta:'Costo Venta', anticipo:'Anticipo'};
@@ -221,8 +222,8 @@ $('btn-venta').onclick = async () => {
   for (const [id, col] of Object.entries(CAMPOS)) { const v = val(id); if (v) f[col] = v; }
   if (f['Cliente WhatsApp']) f['Cliente WhatsApp'] = f['Cliente WhatsApp'].replace(/\D/g, '');
   for (const [id, col] of Object.entries(NUMEROS)) { const v = Number($(id).value || 0); if (v) f[col] = v; }
-  const grad = [['OD', f['RX Final OD']], ['OI', f['RX Final OI']], ['ADD', f['RX Final ADD']]]
-    .filter(x => x[1]).map(x => x[0] + ' ' + x[1]).join(' / ');
+  const grad = [['OD', f['RX Final OD']], ['OI', f['RX Final OI']], ['ADD', f['RX Final ADD']], ['', f['Tipo de Lente']]]
+    .filter(x => x[1]).map(x => (x[0] ? x[0] + ' ' : '') + x[1]).join(' / ');
   if (grad) f['Graduación'] = grad;
 
   const falta = [];
