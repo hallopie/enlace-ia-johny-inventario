@@ -273,7 +273,7 @@ function pintar(){
   const totalDias = diasDelMes(mes);
   const diasTrans = mes === hoy.slice(0,7) ? +hoy.slice(8,10) : (mes < hoy.slice(0,7) ? totalDias : 0);
   empleados.filter(e => e.Status !== 'Baja' && enSuc(e.Sucursal) && /Fijo/.test(e['Forma de Pago']||'')).forEach(e => {
-    const periodo = /quincenal/i.test(e['Forma de Pago']) ? 15 : 7;
+    const fp = e['Forma de Pago'] || '', periodo = /mensual/i.test(fp) ? totalDias : /quincenal/i.test(fp) ? 15 : 7;
     const pago = num(e['Sueldo Fijo']) * diasTrans / periodo;
     nomina[e.id] ??= {nombre:e.Nombre, suc:e.Sucursal, dias:0, horas:0, pago:0, forma:e['Forma de Pago']};
     nomina[e.id].pago = pago; nomina[e.id].forma = e['Forma de Pago'];
