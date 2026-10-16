@@ -110,7 +110,7 @@
 <div class="wrap">
   <div class="filtros">
     <div><label>Sucursal</label>
-      <select id="f-suc"><option value="">Todas</option><option>Sucursal 1</option><option>Sucursal 2</option><option>Sucursal 3</option><option>Sucursal 4</option></select></div>
+      <select id="f-suc"><option value="">Todas</option><option>Perfect Vision Arcos</option><option>Perfect Vision 2</option><option>Perfect Vision 3</option><option>Perfect Vision 4</option></select></div>
     <div><label>Mes</label><select id="f-mes"></select></div>
     <div><label>&nbsp;</label><button class="ghost" id="recargar">↻ Actualizar</button></div>
     <div class="upd" id="upd"></div>
@@ -173,8 +173,8 @@
 const API_URL = 'https://hook.us2.make.com/ako76n73grhit8jt4mtxpr1jini4dl8u';
 // SHA-256 de la contraseña (candado visual, no es seguridad real)
 const PW_HASH = 'e23512505816208eed730f396c3c1d68b986b66b0decdbb70ca1a31750d62bf7';
-const SUCS = ['Sucursal 1','Sucursal 2','Sucursal 3','Sucursal 4'];
-const COLOR = {'Sucursal 1':'var(--s1)','Sucursal 2':'var(--s2)','Sucursal 3':'var(--s3)','Sucursal 4':'var(--s4)'};
+const SUCS = ['Perfect Vision Arcos','Perfect Vision 2','Perfect Vision 3','Perfect Vision 4'];
+const COLOR = {'Perfect Vision Arcos':'var(--s1)','Perfect Vision 2':'var(--s2)','Perfect Vision 3':'var(--s3)','Perfect Vision 4':'var(--s4)'};
 const TZ = 'America/Mexico_City';
 const DEMO = new URLSearchParams(location.search).has('demo');
 
@@ -397,7 +397,7 @@ function pintarSucursales(mes){
   const tot = Object.fromEntries(SUCS.map(s => [s, 0])), cnt = Object.fromEntries(SUCS.map(s => [s, 0]));
   RAW.pedidos.forEach(r => { const f = r.fields; if ((f['Fecha Venta']||'').startsWith(mes)) { const s = txt(f.Sucursal); if (s in tot) { tot[s] += num(f.Total); cnt[s]++; } } });
   const max = Math.max(1, ...Object.values(tot));
-  const W = 460, rowH = 36, L = 96, R = 90, H = SUCS.length * rowH + 6;
+  const W = 460, rowH = 36, L = 150, R = 80, H = SUCS.length * rowH + 6;
   let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Ventas por sucursal">`;
   SUCS.forEach((s, i) => {
     const y = i * rowH + 6, w = tot[s] / max * (W - L - R), h = 18;
@@ -545,7 +545,7 @@ function demoData(){
     });
   }
   SUCS.forEach(s => { for (let k = 0; k < 20 + Math.floor(rnd()*30); k++) { const p = 600 + Math.round(rnd()*1400); inventario.push({createdTime:hoy+'T12:00:00Z', fields:{Sucursal:s, Precio:p, Modelo:'RB' + (2000 + Math.floor(rnd()*900)), Marca:['Ray-Ban','Oakley','Vogue','Carrera'][Math.floor(rnd()*4)], Dimensiones:'52-18-140', 'Fecha Ingreso': hoy}}); } });
-  const emp = [['Chuchita Pérez','Sucursal 1'],['Raúl Gómez','Sucursal 1'],['Diana Flores','Sucursal 2'],['Iván Castro','Sucursal 3'],['Paty Morales','Sucursal 4']];
+  const emp = [['Chuchita Pérez','Perfect Vision Arcos'],['Raúl Gómez','Perfect Vision Arcos'],['Diana Flores','Perfect Vision 2'],['Iván Castro','Perfect Vision 3'],['Paty Morales','Perfect Vision 4']];
   emp.forEach(([n, s], i) => {
     empleados.push({id:'e'+i, fields:{Nombre:n, Sucursal:s, 'Forma de Pago': i === 4 ? 'Fijo semanal' : 'Por hora', 'Pago por Hora': 55 + i*5, 'Sueldo Fijo': i === 4 ? 2800 : 0, Status:'Activo'}});
     if (i === 4) return;
@@ -558,7 +558,7 @@ function demoData(){
       jornadas.push({fields:{Jornada:`${n} ${fecha}`, Empleado:['e'+i], Fecha:fecha, Entrada:ent.toISOString(), Salida: sal && sal.toISOString(), Horas: +hrs.toFixed(2), 'Pago del Día': +(hrs * (55 + i*5)).toFixed(2), Sucursal:[s]}});
     }
   });
-  [['Renta','Sucursal 1',14000],['Renta','Sucursal 2',12000],['Renta','Sucursal 3',11000],['Renta','Sucursal 4',9500],['Luz y agua','General',3800],['Internet','General',1200]]
+  [['Renta','Perfect Vision Arcos',14000],['Renta','Perfect Vision 2',12000],['Renta','Perfect Vision 3',11000],['Renta','Perfect Vision 4',9500],['Luz y agua','General',3800],['Internet','General',1200]]
     .forEach(([c,s,v]) => gastos.push({fields:{Concepto:c, Sucursal:s, 'Monto Mensual':v}}));
   return {pedidos, inventario, jornadas, empleados, gastos};
 }

@@ -52,7 +52,7 @@
   <div class="card">
   <label>Sucursal *</label>
   <select id="sucursal">
-    <option>Sucursal 1</option><option>Sucursal 2</option><option>Sucursal 3</option><option>Sucursal 4</option>
+    <option>Perfect Vision Arcos</option><option>Perfect Vision 2</option><option>Perfect Vision 3</option><option>Perfect Vision 4</option>
   </select>
 
   <label>Foto del armazón *</label>
@@ -71,6 +71,7 @@
 <footer>Hecho por Sótano Bajo</footer>
 
 <script>
+try { const M = {'Sucursal 1':'Perfect Vision Arcos','Sucursal 2':'Perfect Vision 2','Sucursal 3':'Perfect Vision 3','Sucursal 4':'Perfect Vision 4'}; if (M[localStorage.suc]) localStorage.suc = M[localStorage.suc]; } catch(e) {}
 const WEBHOOK_INGRESO = 'https://hook.us2.make.com/dr3c8ay5ampwon7k14uvmidmpv789gkh';
 
 const $ = id => document.getElementById(id);
