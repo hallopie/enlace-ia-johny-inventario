@@ -71,6 +71,18 @@
   .mini span{font-size:12px;color:var(--ink2)}
   h4{font:600 13px/1.3 system-ui;margin:16px 0 6px}
   .late{color:var(--bad);font-weight:600}
+  .big{font:700 32px/1.1 system-ui;font-variant-numeric:tabular-nums}
+  .big-sub{color:var(--ink2);font-size:13px;margin:2px 0 12px}
+  .hb{display:grid;grid-template-columns:minmax(100px,38%) 1fr auto;gap:8px;align-items:center;padding:4px 0;font-size:13px}
+  .hb .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hb .b{height:12px;position:relative}
+  .hb .b span{position:absolute;left:0;top:0;bottom:0;border-radius:0 4px 4px 0;min-width:2px}
+  .hb .n{font-variant-numeric:tabular-nums;color:var(--ink2);text-align:right;white-space:nowrap}
+  .lista-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+  .lista-bar input{flex:1;min-width:180px}
+  .lista{max-height:380px;overflow:auto;margin-top:10px;border:1px solid var(--grid);border-radius:8px}
+  .lista thead th{position:sticky;top:0;background:var(--surface);z-index:1}
+  .lista th,.lista td{white-space:nowrap}
   .legend{display:flex;gap:4px 14px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin-bottom:8px}
   footer{max-width:1120px;margin:0 auto;padding:0 16px 32px;color:var(--muted);font-size:12px}
   /* candado */
@@ -137,8 +149,15 @@
       </div>
     </div>
 
-    <h2>Armazones en inventario <small>los registrados por foto que siguen disponibles</small></h2>
-    <div class="card"><div id="tb-arm"></div></div>
+    <h2>Armazones en inventario <small>por rango de precio · toca "Ver lista" para el detalle</small></h2>
+    <div class="card">
+      <div id="ch-arm"></div>
+      <div class="lista-bar">
+        <button class="ghost" id="btn-lista">Ver lista</button>
+        <input id="q-arm" type="search" placeholder="Buscar modelo, marca o medidas…" hidden>
+      </div>
+      <div id="tb-arm" class="lista" hidden></div>
+    </div>
 
     <h2>Seguimiento de lentes <small>de la venta al laboratorio y al cliente</small></h2>
     <div class="card">
@@ -412,21 +431,33 @@ function pintarSucursales(mes){
 
 // ----- Inventario disponible
 function pintarInventario(suc){
-  const rows = SUCS.filter(s => !suc || s === suc).map(s => {
-    const inv = RAW.inventario.map(r => r.fields).filter(f => txt(f.Sucursal) === s);
-    return {s, n: inv.length, costo: inv.reduce((a,f) => a + num(f['Costo Compra']), 0), venta: inv.reduce((a,f) => a + num(f.Precio), 0)};
-  });
-  const t = rows.reduce((a,r) => ({n:a.n + r.n, costo:a.costo + r.costo, venta:a.venta + r.venta}), {n:0,costo:0,venta:0});
-  $('tb-inv').innerHTML = `<table><thead><tr><th>Sucursal</th><th class="n">Armazones</th><th class="n">Valor a precio</th></tr></thead><tbody>` +
-    rows.map(r => `<tr><td><span class="dot" style="background:${COLOR[r.s]}"></span>${r.s}</td><td class="n">${r.n}</td><td class="n">${money(r.venta)}</td></tr>`).join('') +
-    (rows.length > 1 ? `<tr><td><b>Total</b></td><td class="n"><b>${t.n}</b></td><td class="n"><b>${money(t.venta)}</b></td></tr>` : '') +
-    `</tbody></table>`;
-  const arm = RAW.inventario.map(r => ({...r.fields, _c: r.createdTime || ''})).filter(f => !suc || txt(f.Sucursal) === suc)
-    .sort((a,b) => (b['Fecha Ingreso'] || b._c).localeCompare(a['Fecha Ingreso'] || a._c));
-  $('tb-arm').innerHTML = arm.length ? `<div class="scroll"><table><thead><tr><th>Ingreso</th><th>Sucursal</th><th>Modelo / código</th><th>Marca</th><th>Medidas</th><th>Notas</th><th class="n">Precio</th></tr></thead><tbody>` +
-    arm.map(f => `<tr><td>${esc((f['Fecha Ingreso'] || f._c.slice(0,10)).split('-').reverse().join('/'))}</td><td><span class="dot" style="background:${COLOR[txt(f.Sucursal)] || 'var(--muted)'}"></span>${esc(txt(f.Sucursal))}</td><td>${esc(f.Modelo || f['Código Armazón'] || '—')}</td><td>${esc(f.Marca || '—')}</td><td>${esc(f.Dimensiones || '')}</td><td>${esc(f.Notas || '')}</td><td class="n">${money(num(f.Precio))}</td></tr>`).join('') +
-    `</tbody></table></div>` : '<div class="vacio">No hay armazones disponibles registrados.</div>';
+  const inv = RAW.inventario.map(r => ({...r.fields, _c: r.createdTime || ''})).filter(f => !suc || txt(f.Sucursal) === suc);
+  const total = inv.length, valor = inv.reduce((a,f) => a + num(f.Precio), 0);
+  const bar = (rows, colorFn) => { const mx = Math.max(1, ...rows.map(r => r.n));
+    return rows.map(r => `<div class="hb" data-tip="${esc(`<b>${r.t}</b><br>${r.n} armazones · ${money(r.v)}`)}"><div class="t">${esc(r.t)}</div><div class="b"><span style="width:${r.n/mx*100}%;background:${colorFn(r)}"></span></div><div class="n">${r.n} · ${moneyK(r.v)}</div></div>`).join(''); };
+  // tarjeta chica: total y por sucursal
+  const porSuc = SUCS.filter(s => !suc || s === suc).map(s => { const a = inv.filter(f => txt(f.Sucursal) === s); return {t:s, n:a.length, v:a.reduce((x,f) => x + num(f.Precio), 0)}; });
+  $('tb-inv').innerHTML = `<div class="big">${total}</div><div class="big-sub">armazones disponibles · ${money(valor)} a precio de venta</div>` + bar(porSuc, r => COLOR[r.t]);
+  // por rango de precio
+  const rangos = [[0,999,'Menos de $1,000'],[1000,1499,'$1,000 – $1,499'],[1500,1999,'$1,500 – $1,999'],[2000,2999,'$2,000 – $2,999'],[3000,1e9,'$3,000 o más']];
+  const porRango = rangos.map(([lo,hi,t]) => { const a = inv.filter(f => num(f.Precio) >= lo && num(f.Precio) <= hi); return {t, n:a.length, v:a.reduce((x,f) => x + num(f.Precio), 0)}; });
+  $('ch-arm').innerHTML = total ? bar(porRango, () => 'var(--accent)') : '<div class="vacio">No hay armazones disponibles registrados.</div>';
+  bindTips($('tb-inv')); bindTips($('ch-arm'));
+  // lista (oculta hasta que se pica)
+  const arm = inv.sort((a,b) => (b['Fecha Ingreso'] || b._c).localeCompare(a['Fecha Ingreso'] || a._c));
+  const q = ($('q-arm').value || '').toLowerCase();
+  const vis = q ? arm.filter(f => [f.Modelo, f['Código Armazón'], f.Marca, f.Dimensiones, f.Notas].join(' ').toLowerCase().includes(q)) : arm;
+  $('btn-lista').textContent = $('tb-arm').hidden ? `Ver lista (${total})` : 'Ocultar lista';
+  $('btn-lista').hidden = !total;
+  $('tb-arm').innerHTML = vis.length ? `<table><thead><tr><th>Ingreso</th><th>Sucursal</th><th>Modelo / código</th><th>Marca</th><th>Medidas</th><th>Notas</th><th class="n">Precio</th></tr></thead><tbody>` +
+    vis.map(f => `<tr><td>${esc((f['Fecha Ingreso'] || f._c.slice(0,10)).split('-').reverse().join('/'))}</td><td><span class="dot" style="background:${COLOR[txt(f.Sucursal)] || 'var(--muted)'}"></span>${esc(txt(f.Sucursal))}</td><td>${esc(f.Modelo || f['Código Armazón'] || '—')}</td><td>${esc(f.Marca || '—')}</td><td>${esc(f.Dimensiones || '')}</td><td>${esc(f.Notas || '')}</td><td class="n">${money(num(f.Precio))}</td></tr>`).join('') +
+    `</tbody></table>` : '<div class="vacio" style="padding:12px">Nada coincide con la búsqueda.</div>';
 }
+$('btn-lista').onclick = () => {
+  const ab = $('tb-arm').hidden; $('tb-arm').hidden = !ab; $('q-arm').hidden = !ab;
+  $('btn-lista').textContent = ab ? 'Ocultar lista' : `Ver lista (${RAW.inventario.length})`;
+};
+$('q-arm').oninput = () => pintarInventario($('f-suc').value);
 
 // ----- Seguimiento de lentes (3 vistas)
 let VISTA = 'salieron';

@@ -155,7 +155,10 @@ $('btn').onclick = async () => {
   if (MODO === 'foto') show('ok', 'Leyendo la foto, tarda unos segundos…');
   try {
     const payload = {sucursal: $('sucursal').value, precio, notas: limpio($('notas').value)};
-    if (MODO === 'foto') payload.foto = await comprimir(f);
+    if (MODO === 'foto') {
+      payload.foto = await comprimir(f);
+      if (!payload.foto || payload.foto.length < 1000) { show('err', 'La foto no se pudo leer en este celular. Vuelve a tomarla o usa la opción <b>A mano</b>.'); return; }
+    }
     else Object.assign(payload, {manual: 'si', marca: limpio($('m_marca').value), modelo: limpio($('m_modelo').value),
       dimensiones: limpio($('m_medidas').value), codigo_armazon: limpio($('m_codigo').value)});
     const r = await fetch(WEBHOOK_INGRESO, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
