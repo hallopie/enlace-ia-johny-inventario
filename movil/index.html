@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F1F3D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Perfect Vision">
+<title>Perfect Vision</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+  :root{
+    --navy:#0F1F3D; --azul:#1E3A6E; --acento:#4A90D9;
+    --fondo:#F3F5F9; --tarjeta:#FFFFFF; --texto:#14213D; --suave:#5B6780; --linea:#DDE3EE;
+    --ok:#1E8E5A; --ok-tinte:#E3F4EC; --alerta:#C0392B; --alerta-tinte:#FBE9E7;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%}
+  body{font-family:Arial,Helvetica,sans-serif;background:var(--fondo);color:var(--texto);
+       display:flex;flex-direction:column;min-height:100vh}
+  header{background:var(--navy);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;
+         display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .marca{font-family:"Arial Black",Arial,sans-serif;font-size:19px;letter-spacing:.3px}
+  .sucursal{font-size:12px;color:#B9C7E0;margin-top:2px}
+  .btn-icono{background:var(--azul);border:0;color:#fff;border-radius:10px;padding:9px 12px;font-size:13px}
+  main{flex:1;padding:16px;max-width:560px;width:100%;margin:0 auto}
+  h1{font-size:20px;margin:4px 0 2px}
+  .sub{color:var(--suave);font-size:14px;margin:0 0 16px}
+  .fecha{font-family:"Courier New",monospace;color:var(--azul);font-weight:bold}
+  .lista{display:flex;flex-direction:column;gap:10px}
+  .emp{background:var(--tarjeta);border:1px solid var(--linea);border-radius:14px;padding:16px;
+       display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;
+       text-align:left;font:inherit;color:inherit;cursor:pointer}
+  .emp:active{transform:scale(.99)}
+  .emp .nombre{font-size:17px;font-weight:bold}
+  .emp .estado{font-size:13px;color:var(--suave);margin-top:4px}
+  .chip{font-size:12px;font-weight:bold;border-radius:999px;padding:6px 10px;white-space:nowrap}
+  .chip.dentro{background:var(--ok-tinte);color:var(--ok)}
+  .chip.fuera{background:#EDF0F6;color:var(--suave)}
+  .vacio,.error{background:var(--tarjeta);border:1px dashed var(--linea);border-radius:14px;padding:20px;text-align:center;color:var(--suave)}
+  .error{border-color:var(--alerta);color:var(--alerta);background:var(--alerta-tinte)}
+  .cargando{color:var(--suave);text-align:center;padding:24px}
+  nav{background:#fff;border-top:1px solid var(--linea);display:flex;padding-bottom:env(safe-area-inset-bottom);position:sticky;bottom:0}
+  nav button{flex:1;background:none;border:0;padding:12px 4px 10px;font:inherit;font-size:12px;color:var(--suave);display:flex;flex-direction:column;align-items:center;gap:4px}
+  nav button.activo{color:var(--azul);font-weight:bold}
+  nav svg{width:22px;height:22px}
+  .pie{text-align:center;font-size:11px;color:var(--suave);padding:18px 0 8px}
+  /* hoja de confirmación */
+  .velo{position:fixed;inset:0;background:rgba(15,31,61,.45);display:none;align-items:flex-end;justify-content:center;z-index:10}
+  .velo.abierto{display:flex}
+  .hoja{background:#fff;width:100%;max-width:560px;border-radius:20px 20px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom))}
+  .hoja h2{margin:0 0 4px;font-size:20px}
+  .hoja p{margin:0 0 18px;color:var(--suave)}
+  .grande{width:100%;border:0;border-radius:14px;padding:18px;font-size:18px;font-weight:bold;color:#fff;background:var(--azul)}
+  .grande.entrada{background:var(--ok)}
+  .grande.salida{background:var(--navy)}
+  .grande:disabled{opacity:.6}
+  .cancelar{width:100%;margin-top:10px;background:none;border:1px solid var(--linea);border-radius:14px;padding:14px;font-size:16px;color:var(--suave)}
+  .aviso{position:fixed;left:16px;right:16px;bottom:calc(84px + env(safe-area-inset-bottom));max-width:528px;margin:0 auto;
+         background:var(--navy);color:#fff;border-radius:14px;padding:14px 16px;font-size:15px;display:none;z-index:20}
+  .aviso.ver{display:block}
+  .aviso.mal{background:var(--alerta)}
+  /* configuración */
+  label{display:block;font-size:14px;font-weight:bold;margin:16px 0 6px}
+  select{width:100%;padding:14px;border-radius:12px;border:1px solid var(--linea);font-size:16px;background:#fff}
+  #marcos{flex:1;display:flex}
+  #marcos iframe{flex:1;width:100%;border:0;display:none;min-height:calc(100vh - 140px);background:#fff}
+  #marcos iframe.ver{display:block}
+  .check{display:flex;gap:10px;align-items:center;font-weight:normal;margin-top:20px}
+  .check input{width:22px;height:22px}
+  .instalar{display:none;margin:0 0 16px;width:100%;background:var(--acento);color:#fff;border:0;border-radius:12px;padding:14px;font-size:15px;font-weight:bold}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="marca">Perfect Vision</div>
+    <div class="sucursal" id="txtSucursal"></div>
+  </div>
+  <button class="btn-icono" id="btnActualizar" aria-label="Actualizar">Actualizar</button>
+</header>
+
+<main id="vista"></main>
+<div id="marcos"></div>
+
+<nav>
+  <button data-tab="asistencia" class="activo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Asistencia</button>
+  <button data-tab="inventario">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16v12H4z"/><path d="M9 7l1.5-3h3L15 7"/><circle cx="12" cy="13" r="3"/></svg>Inventario</button>
+  <button data-tab="venta">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5h14v14H5z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>Venta</button>
+  <button data-tab="tablero" id="tabTablero" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Tablero</button>
+  <button data-tab="ajustes">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg>Ajustes</button>
+</nav>
+
+<div class="velo" id="velo">
+  <div class="hoja" role="dialog" aria-modal="true">
+    <h2 id="hojaNombre"></h2>
+    <p id="hojaTexto"></p>
+    <button class="grande" id="hojaBoton"></button>
+    <button class="cancelar" id="hojaCancelar">Cancelar</button>
+  </div>
+</div>
+<div class="aviso" id="aviso"></div>
+
+<script>
+// ===== Configuración =====
+const API = 'https://hook.us2.make.com/er2fxx0dm233obuqr9hsvh118q7gdc2m';
+const SUCURSALES = ['Perfect Vision Arcos', 'Perfect Vision 2', 'Perfect Vision 3', 'Perfect Vision 4'];
+const DEMO = new URLSearchParams(location.search).has('demo'); // modo prueba sin tocar Airtable
+
+// ===== Guardado local (solo preferencias de este celular) =====
+const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+const leer = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+// 'suc' es la misma llave que usan las páginas de Inventario y Mostrador, así las tres comparten sucursal.
+let sucursal = leer('suc');
+let duenio = leer('pv_duenio') === '1';
+let dispositivo = leer('pv_dispositivo');
+if (!dispositivo) { dispositivo = 'cel-' + Math.random().toString(36).slice(2, 8); guardar('pv_dispositivo', dispositivo); }
+
+// ===== Estado =====
+let empleados = [];   // [{id, nombre}]
+let abiertas = {};    // empleadoId -> hora de entrada
+let tab = 'asistencia';
+let instalador = null;
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const hora = (iso) => new Date(iso).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Mexico_City' });
+const hoyTexto = () => new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Mexico_City' });
+
+// ===== Comunicación con Make =====
+// Se manda como formulario (no JSON) para que el navegador no haga una consulta previa que Make no contesta.
+async function llamar(datos) {
+  if (DEMO) return demo(datos);
+  const res = await fetch(API, { method: 'POST', body: new URLSearchParams(datos) });
+  if (!res.ok) throw new Error('El servidor respondió ' + res.status);
+  const txt = await res.text();
+  try { return JSON.parse(txt); } catch (e) { throw new Error('Respuesta inesperada del servidor'); }
+}
+
+// Datos falsos para probar la app sin registrar nada real (abre la app con ?demo)
+const demoDB = { emp: [{ id: 'rec1', fields: { Nombre: 'Cinthya Ángeles' } }, { id: 'rec2', fields: { Nombre: 'Jorge Ramírez' } }, { id: 'rec3', fields: { Nombre: 'Lucía Herrera' } }],
+                 abiertas: [{ fields: { 'Empleado ID': 'rec2', Entrada: new Date(Date.now() - 3 * 3600e3).toISOString() } }] };
+async function demo(d) {
+  await new Promise((r) => setTimeout(r, 400));
+  if (d.accion === 'empleados') return { ok: true, empleados: demoDB.emp, abiertas: demoDB.abiertas };
+  const i = demoDB.abiertas.findIndex((a) => a.fields['Empleado ID'] === d.empleadoId);
+  if (d.accion === 'entrada') {
+    if (i >= 0) return { ok: false, mensaje: 'Ya tienes una entrada registrada hoy.' };
+    demoDB.abiertas.push({ fields: { 'Empleado ID': d.empleadoId, Entrada: new Date().toISOString() } });
+  } else {
+    if (i < 0) return { ok: false, mensaje: 'No hay entrada registrada hoy. Primero registra la entrada.' };
+    demoDB.abiertas.splice(i, 1);
+  }
+  return { ok: true, accion: d.accion, hora: hora(new Date().toISOString()) };
+}
+
+// ===== Asistencia =====
+async function cargarAsistencia() {
+  const v = $('vista');
+  v.innerHTML = encabezadoAsistencia() + '<div class="cargando">Cargando empleados…</div>';
+  try {
+    const r = await llamar({ accion: 'empleados', sucursal });
+    empleados = (r.empleados || []).map((e) => ({ id: e.id, nombre: (e.fields && e.fields.Nombre) || 'Sin nombre' }));
+    abiertas = {};
+    (r.abiertas || []).forEach((a) => { const f = a.fields || {}; if (f['Empleado ID']) abiertas[f['Empleado ID']] = f.Entrada; });
+    pintarAsistencia();
+  } catch (e) {
+    v.innerHTML = encabezadoAsistencia() + `<div class="error">No se pudo cargar la lista.<br>Revisa el internet del celular y toca <b>Actualizar</b>.</div>`;
+  }
+}
+
+function encabezadoAsistencia() {
+  return `<button class="instalar" id="btnInstalar">Instalar Perfect Vision en este celular</button>
+          <h1>Asistencia</h1><p class="sub">Hoy es <span class="fecha">${esc(hoyTexto())}</span>. Toca tu nombre para registrar entrada o salida.</p>`;
+}
+
+function pintarAsistencia() {
+  const v = $('vista');
+  if (!empleados.length) {
+    v.innerHTML = encabezadoAsistencia() + `<div class="vacio">No hay empleados activos registrados en ${esc(sucursal)}.<br>Pídele a Johny que los dé de alta.</div>`;
+  } else {
+    v.innerHTML = encabezadoAsistencia() + '<div class="lista">' + empleados.map((e) => {
+      const dentro = abiertas[e.id];
+      return `<button class="emp" data-id="${esc(e.id)}">
+                <div><div class="nombre">${esc(e.nombre)}</div>
+                <div class="estado">${dentro ? 'Entró a las ' + esc(hora(dentro)) : 'Sin entrada hoy'}</div></div>
+                <span class="chip ${dentro ? 'dentro' : 'fuera'}">${dentro ? 'Dentro' : 'Fuera'}</span>
+              </button>`;
+    }).join('') + '</div>';
+  }
+  v.insertAdjacentHTML('beforeend', '<div class="pie">Hecho por Sótano Bajo</div>');
+  v.querySelectorAll('.emp').forEach((b) => b.addEventListener('click', () => abrirHoja(b.dataset.id)));
+  mostrarInstalar();
+}
+
+let elegido = null;
+function abrirHoja(id) {
+  elegido = empleados.find((e) => e.id === id);
+  if (!elegido) return;
+  const dentro = abiertas[id];
+  $('hojaNombre').textContent = elegido.nombre;
+  $('hojaTexto').textContent = dentro ? `Entraste a las ${hora(dentro)}. ¿Ya te vas?` : '¿Vas llegando a la tienda?';
+  const b = $('hojaBoton');
+  b.textContent = dentro ? 'Registrar salida' : 'Registrar entrada';
+  b.className = 'grande ' + (dentro ? 'salida' : 'entrada');
+  b.disabled = false;
+  b.dataset.accion = dentro ? 'salida' : 'entrada';
+  $('velo').classList.add('abierto');
+}
+function cerrarHoja() { $('velo').classList.remove('abierto'); elegido = null; }
+
+async function registrar() {
+  if (!elegido) return;
+  const b = $('hojaBoton');
+  const accion = b.dataset.accion;
+  b.disabled = true; b.textContent = 'Registrando…';
+  try {
+    const r = await llamar({ accion, empleadoId: elegido.id, nombre: elegido.nombre, sucursal, dispositivo });
+    if (!r.ok) { avisar(r.mensaje || 'No se pudo registrar.', true); cerrarHoja(); cargarAsistencia(); return; }
+    avisar(`${accion === 'entrada' ? '✅ Entrada' : '👋 Salida'} de ${elegido.nombre} a las ${r.hora}`);
+    if (accion === 'entrada') abiertas[elegido.id] = new Date().toISOString(); else delete abiertas[elegido.id];
+    cerrarHoja(); pintarAsistencia();
+  } catch (e) {
+    avisar('Sin conexión. No se registró; intenta de nuevo.', true);
+    b.disabled = false; b.textContent = accion === 'entrada' ? 'Registrar entrada' : 'Registrar salida';
+  }
+}
+
+let avisoT;
+function avisar(txt, mal) {
+  const a = $('aviso'); a.textContent = txt; a.className = 'aviso ver' + (mal ? ' mal' : '');
+  clearTimeout(avisoT); avisoT = setTimeout(() => (a.className = 'aviso'), 3500);
+}
+
+// ===== Pestañas que reutilizan las páginas que ya funcionan (mismo sitio) =====
+const PAGINAS = { inventario: '../index.html', venta: '../app.html', tablero: '../dashboard.html' };
+const marcos = {};
+function mostrarPagina(t, recargar) {
+  let f = marcos[t];
+  if (!f) {
+    f = document.createElement('iframe');
+    f.title = t;
+    f.src = PAGINAS[t];
+    // Oculta el encabezado propio de la página; la app ya tiene el suyo.
+    f.addEventListener('load', () => {
+      try {
+        if (t === 'tablero') return;
+        const d = f.contentDocument, s = d.createElement('style');
+        s.textContent = 'body > header{display:none !important}';
+        d.head.appendChild(s);
+      } catch (e) {}
+    });
+    $('marcos').appendChild(f);
+    marcos[t] = f;
+  } else if (recargar) {
+    f.contentWindow.location.reload();
+  }
+  Object.values(marcos).forEach((m) => m.classList.toggle('ver', m === f));
+}
+
+function pintarAjustes(primeraVez) {
+  $('vista').innerHTML = `<h1>${primeraVez ? 'Configura este celular' : 'Ajustes'}</h1>
+    <p class="sub">${primeraVez ? 'Elige la sucursal donde vive este celular. Solo se hace una vez.' : 'Sucursal y datos de este celular.'}</p>
+    <label for="selSucursal">Sucursal</label>
+    <select id="selSucursal">${SUCURSALES.map((s) => `<option ${s === sucursal ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select>
+    <label class="check"><input type="checkbox" id="chkDuenio" ${duenio ? 'checked' : ''}> Mostrar el Tablero (solo en el celular de Johny)</label>
+    <button class="grande" id="btnGuardar" style="margin-top:20px">Guardar</button>
+    <p class="sub" style="margin-top:16px">Celular: <span class="fecha">${esc(dispositivo)}</span>${DEMO ? ' · modo prueba' : ''}</p>
+    <div class="pie">Hecho por Sótano Bajo</div>`;
+  $('btnGuardar').addEventListener('click', () => {
+    sucursal = $('selSucursal').value; guardar('suc', sucursal);
+    duenio = $('chkDuenio').checked; guardar('pv_duenio', duenio ? '1' : '0');
+    // Las páginas ya abiertas leen la sucursal al cargar: se recargan para tomar la nueva.
+    Object.values(marcos).forEach((m) => m.remove()); for (const k in marcos) delete marcos[k];
+    ponerSucursal(); cambiarTab('asistencia');
+  });
+}
+
+function ponerSucursal() { $('txtSucursal').textContent = (sucursal || 'Sin sucursal') + (DEMO ? ' · prueba' : ''); }
+
+function cambiarTab(t, recargar) {
+  tab = t;
+  $('tabTablero').style.display = duenio ? '' : 'none';
+  document.querySelectorAll('nav button').forEach((b) => b.classList.toggle('activo', b.dataset.tab === t));
+  const esPagina = !!sucursal && t in PAGINAS;
+  $('vista').style.display = esPagina ? 'none' : '';
+  $('marcos').style.display = esPagina ? '' : 'none';
+  if (!sucursal) return pintarAjustes(true);
+  if (esPagina) return mostrarPagina(t, recargar);
+  if (t === 'asistencia') cargarAsistencia();
+  else pintarAjustes(false);
+}
+
+// ===== Instalación como app =====
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); instalador = e; mostrarInstalar(); });
+function mostrarInstalar() {
+  const b = $('btnInstalar'); if (!b) return;
+  b.style.display = instalador ? 'block' : 'none';
+  b.onclick = async () => { if (!instalador) return; instalador.prompt(); await instalador.userChoice; instalador = null; b.style.display = 'none'; };
+}
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+
+// ===== Arranque =====
+$('btnActualizar').addEventListener('click', () => cambiarTab(tab, true));
+$('hojaBoton').addEventListener('click', registrar);
+$('hojaCancelar').addEventListener('click', cerrarHoja);
+$('velo').addEventListener('click', (e) => { if (e.target.id === 'velo') cerrarHoja(); });
+document.querySelectorAll('nav button').forEach((b) => b.addEventListener('click', () => cambiarTab(b.dataset.tab)));
+ponerSucursal();
+cambiarTab('asistencia');
+</script>
+</body>
+</html>
